@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent } from '@/components/ui/card.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
@@ -18,17 +19,6 @@ import {
   MapPin
 } from 'lucide-react'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion.jsx'
-import { 
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel 
-} from '@/components/ui/alert-dialog.jsx'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert.jsx'
 import { AspectRatio } from '@/components/ui/aspect-ratio.jsx'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar.jsx'
@@ -61,6 +51,54 @@ import {
   CommandItem, 
   CommandShortcut 
 } from '@/components/ui/command.jsx'
+import { 
+  ContextMenu, 
+  ContextMenuTrigger, 
+  ContextMenuContent, 
+  ContextMenuItem, 
+  ContextMenuSeparator, 
+  ContextMenuShortcut 
+} from '@/components/ui/context-menu.jsx'
+import { 
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+  DialogClose
+} from '@/components/ui/dialog.jsx'
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerFooter,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose
+} from '@/components/ui/drawer.jsx'
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage
+} from '@/components/ui/form.jsx'
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent
+} from '@/components/ui/hover-card.jsx'
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator
+} from '@/components/ui/input-otp.jsx'
 import './App.css'
 
 function App() {
@@ -70,6 +108,7 @@ function App() {
   const [isSubscribed, setIsSubscribed] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [favorites, setFavorites] = useState([])
   const [user, setUser] = useState({
     name: "أحمد",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
@@ -91,6 +130,17 @@ function App() {
       description: "استمتع بخصومات تصل إلى 50% على المنتجات المختارة."
     }
   ])
+  const [otpStep, setOtpStep] = useState(false) // State to toggle between email confirmation and OTP input
+  const [otp, setOtp] = useState('') // State to store OTP value
+  const [otpError, setOtpError] = useState('') // State to store OTP error message
+
+  // Initialize form with react-hook-form
+  const form = useForm({
+    defaultValues: {
+      email: ""
+    },
+    mode: "onSubmit"
+  })
 
   // Hero slides data
   const heroSlides = [
@@ -117,7 +167,7 @@ function App() {
     }
   ]
 
-  // Featured products data
+  // Featured products data with descriptions
   const featuredProducts = [
     {
       id: 1,
@@ -125,6 +175,7 @@ function App() {
       price: "1,299 ريال",
       originalPrice: "1,599 ريال",
       image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1088&q=80",
+      description: "فستان سهرة مصمم من الحرير الفاخر مع تفاصيل مطرزة يدويًا.",
       rating: 4.8,
       reviews: 124,
       isNew: true,
@@ -136,6 +187,7 @@ function App() {
       price: "2,499 ريال",
       originalPrice: "",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1087&q=80",
+      description: "بدلة مصممة بدقة لإطلالة أنيقة ومريحة في جميع المناسبات.",
       rating: 4.9,
       reviews: 89,
       isNew: false,
@@ -147,6 +199,7 @@ function App() {
       price: "899 ريال",
       originalPrice: "1,199 ريال",
       image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1035&q=80",
+      description: "حقيبة يد مصنوعة من الجلد الطبيعي مع تصميم عصري.",
       rating: 4.7,
       reviews: 156,
       isNew: true,
@@ -158,6 +211,7 @@ function App() {
       price: "1,799 ريال",
       originalPrice: "",
       image: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fEVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1087&q=80",
+      description: "معطف شتوي دافئ بتصميم كلاسيكي يناسب الأجواء الباردة.",
       rating: 4.6,
       reviews: 73,
       isNew: false,
@@ -169,6 +223,7 @@ function App() {
       price: "699 ريال",
       originalPrice: "899 ريال",
       image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1086&q=80",
+      description: "فستان كاجوال مثالي للإطلالات اليومية بتصميم مريح.",
       rating: 4.5,
       reviews: 92,
       isNew: true,
@@ -180,6 +235,7 @@ function App() {
       price: "1,299 ريال",
       originalPrice: "",
       image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fEVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1112&q=80",
+      description: "حذاء رياضي فاخر يجمع بين الأناقة والراحة.",
       rating: 4.8,
       reviews: 201,
       isNew: false,
@@ -295,6 +351,34 @@ function App() {
     }))
   }
 
+  // Handle adding/removing from favorites
+  const toggleFavorite = (productId) => {
+    setFavorites((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    )
+  }
+
+  // Handle form submission
+  const onSubmit = (data) => {
+    setIsDialogOpen(true) // Open dialog on successful form submission
+  }
+
+  // Handle OTP submission
+  const handleOTPSubmit = () => {
+    if (otp === '123456') { // Simulated correct OTP for demo
+      setIsSubscribed(true)
+      setIsDialogOpen(false)
+      setOtpStep(false)
+      setOtp('')
+      setOtpError('')
+      form.reset()
+    } else {
+      setOtpError('رمز OTP غير صحيح. حاول مرة أخرى.')
+    }
+  }
+
   // Auto-slide effect for hero
   useEffect(() => {
     const timer = setInterval(() => {
@@ -371,32 +455,91 @@ function App() {
 
             {/* Mobile menu button */}
             <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </Button>
+              <Drawer open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                <DrawerTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsMenuOpen(true)}
+                  >
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="luxury-drawer" data-vaul-drawer-direction="right">
+                  <DrawerHeader>
+                    <DrawerTitle className="luxury-font-heading text-xl">
+                      القائمة
+                    </DrawerTitle>
+                    <DrawerDescription>اختر وجهتك</DrawerDescription>
+                  </DrawerHeader>
+                  <div className="px-4 py-2 space-y-3">
+                    <a
+                      href="#home"
+                      className="block px-3 py-2 luxury-nav-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      الرئيسية
+                    </a>
+                    <a
+                      href="#products"
+                      className="block px-3 py-2 luxury-nav-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      المنتجات
+                    </a>
+                    <a
+                      href="#categories"
+                      className="block px-3 py-2 luxury-nav-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      الفئات
+                    </a>
+                    <a
+                      href="#events"
+                      className="block px-3 py-2 luxury-nav-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      الفعاليات
+                    </a>
+                    <a
+                      href="#sales-stats"
+                      className="block px-3 py-2 luxury-nav-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      إحصائيات المبيعات
+                    </a>
+                    <a
+                      href="#about"
+                      className="block px-3 py-2 luxury-nav-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      من نحن
+                    </a>
+                    <a
+                      href="#faq"
+                      className="block px-3 py-2 luxury-nav-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      الأسئلة الشائعة
+                    </a>
+                    <a
+                      href="#contact"
+                      className="block px-3 py-2 luxury-nav-link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      تواصل معنا
+                    </a>
+                  </div>
+                  <DrawerFooter>
+                    <DrawerClose asChild>
+                      <Button className="luxury-btn-outline">إغلاق</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
             </div>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-background border-t border-border">
-              <a href="#home" className="block px-3 py-2 luxury-nav-link">الرئيسية</a>
-              <a href="#products" className="block px-3 py-2 luxury-nav-link">المنتجات</a>
-              <a href="#categories" className="block px-3 py-2 luxury-nav-link">الفئات</a>
-              <a href="#events" className="block px-3 py-2 luxury-nav-link">الفعاليات</a>
-              <a href="#sales-stats" className="block px-3 py-2 luxury-nav-link">إحصائيات المبيعات</a>
-              <a href="#about" className="block px-3 py-2 luxury-nav-link">من نحن</a>
-              <a href="#faq" className="block px-3 py-2 luxury-nav-link">الأسئلة الشائعة</a>
-              <a href="#contact" className="block px-3 py-2 luxury-nav-link">تواصل معنا</a>
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* Search Command Dialog */}
@@ -706,86 +849,154 @@ function App() {
               {filteredProducts.length > 0 ? (
                 filteredProducts.map((product) => (
                   <CarouselItem key={product.id} className="luxury-carousel-item">
-                    <Card className="luxury-product-card luxury-card overflow-hidden">
-                      <div className="relative">
-                        <AspectRatio ratio={4 / 3}>
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="luxury-product-image object-cover w-full h-full"
-                          />
-                        </AspectRatio>
-                        <div className="luxury-product-overlay">
-                          <Button className="luxury-btn-gold">
-                            عرض التفاصيل
-                          </Button>
-                        </div>
-                        {product.isNew && (
-                          <a href="#products">
-                            <Badge
-                              variant="secondary"
-                              className="absolute top-4 left-4 luxury-shadow"
+                    <ContextMenu>
+                      <ContextMenuTrigger>
+                        <Card className="luxury-product-card luxury-card overflow-hidden">
+                          <div className="relative">
+                            <HoverCard>
+                              <HoverCardTrigger asChild>
+                                <AspectRatio ratio={4 / 3}>
+                                  <img
+                                    src={product.image}
+                                    alt={product.name}
+                                    className="luxury-product-image object-cover w-full h-full"
+                                  />
+                                </AspectRatio>
+                              </HoverCardTrigger>
+                              <HoverCardContent className="luxury-hover-card">
+                                <h3 className="text-lg font-semibold luxury-font-heading mb-2">
+                                  {product.name}
+                                </h3>
+                                <p className="text-sm text-muted-foreground mb-3">
+                                  {product.description}
+                                </p>
+                                <div className="flex items-center mb-2">
+                                  <div className="flex items-center">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star
+                                        key={i}
+                                        className={`h-4 w-4 ${
+                                          i < Math.floor(product.rating)
+                                            ? 'text-accent fill-current'
+                                            : 'text-muted-foreground'
+                                        }`}
+                                      />
+                                    ))}
+                                  </div>
+                                  <span className="text-sm text-muted-foreground mr-2">
+                                    ({product.reviews})
+                                  </span>
+                                </div>
+                              </HoverCardContent>
+                            </HoverCard>
+                            <div className="luxury-product-overlay">
+                              <Button className="luxury-btn-gold">
+                                عرض التفاصيل
+                              </Button>
+                            </div>
+                            {product.isNew && (
+                              <a href="#products">
+                                <Badge
+                                  variant="secondary"
+                                  className="absolute top-4 left-4 luxury-shadow"
+                                >
+                                  جديد
+                                </Badge>
+                              </a>
+                            )}
+                            {product.isSale && (
+                              <a href="#products">
+                                <Badge
+                                  variant="destructive"
+                                  className="absolute top-4 right-4 luxury-shadow"
+                                >
+                                  تخفيض
+                                </Badge>
+                              </a>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="absolute top-4 right-4 bg-white/80 hover:bg-white"
+                              onClick={() => toggleFavorite(product.id)}
                             >
-                              جديد
-                            </Badge>
-                          </a>
-                        )}
-                        {product.isSale && (
-                          <a href="#products">
-                            <Badge
-                              variant="destructive"
-                              className="absolute top-4 right-4 luxury-shadow"
-                            >
-                              تخفيض
-                            </Badge>
-                          </a>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-4 right-4 bg-white/80 hover:bg-white"
-                        >
-                          <Heart className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <CardContent className="p-6">
-                        <h3 className="text-lg font-semibold luxury-font-heading mb-2">
-                          {product.name}
-                        </h3>
-                        <div className="flex items-center mb-2">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
+                              <Heart
                                 className={`h-4 w-4 ${
-                                  i < Math.floor(product.rating)
-                                    ? 'text-accent fill-current'
+                                  favorites.includes(product.id)
+                                    ? 'fill-current text-accent'
                                     : 'text-muted-foreground'
                                 }`}
                               />
-                            ))}
+                            </Button>
                           </div>
-                          <span className="text-sm text-muted-foreground mr-2">
-                            ({product.reviews})
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xl font-bold text-accent">
-                              {product.price}
-                            </span>
-                            {product.originalPrice && (
-                              <span className="text-sm text-muted-foreground line-through">
-                                {product.originalPrice}
+                          <CardContent className="p-6">
+                            <h3 className="text-lg font-semibold luxury-font-heading mb-2">
+                              {product.name}
+                            </h3>
+                            <div className="flex items-center mb-2">
+                              <div className="flex items-center">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-4 w-4 ${
+                                      i < Math.floor(product.rating)
+                                        ? 'text-accent fill-current'
+                                        : 'text-muted-foreground'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-sm text-muted-foreground mr-2">
+                                ({product.reviews})
                               </span>
-                            )}
-                          </div>
-                          <Button size="sm" className="luxury-btn">
-                            أضف للسلة
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xl font-bold text-accent">
+                                  {product.price}
+                                </span>
+                                {product.originalPrice && (
+                                  <span className="text-sm text-muted-foreground line-through">
+                                    {product.originalPrice}
+                                  </span>
+                                )}
+                              </div>
+                              <Button size="sm" className="luxury-btn">
+                                أضف للسلة
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </ContextMenuTrigger>
+                      <ContextMenuContent className="luxury-context-menu">
+                        <ContextMenuItem
+                          className="luxury-context-menu-item"
+                          onSelect={() => toggleFavorite(product.id)}
+                        >
+                          {favorites.includes(product.id)
+                            ? 'إزالة من المفضلة'
+                            : 'إضافة إلى المفضلة'}
+                          <ContextMenuShortcut>
+                            <Heart className="h-4 w-4" />
+                          </ContextMenuShortcut>
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          className="luxury-context-menu-item"
+                          onSelect={() => alert(`تمت مشاركة ${product.name}`)}
+                        >
+                          مشاركة المنتج
+                          <ContextMenuShortcut>مشاركة</ContextMenuShortcut>
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          className="luxury-context-menu-item"
+                          onSelect={() => (window.location.hash = '#products')}
+                        >
+                          عرض التفاصيل
+                          <ContextMenuShortcut>عرض</ContextMenuShortcut>
+                        </ContextMenuItem>
+                      </ContextMenuContent>
+                    </ContextMenu>
                   </CarouselItem>
                 ))
               ) : (
@@ -925,44 +1136,123 @@ function App() {
           <p className="text-xl text-white/90 mb-8">
             كن أول من يعلم بأحدث المنتجات والعروض الحصرية
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="أدخل بريدك الإلكتروني"
-              className="flex-1 px-6 py-4 rounded-lg border-0 focus:ring-2 focus:ring-white/50 text-right"
-            />
-            <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <AlertDialogTrigger asChild>
-                <Button className="bg-white text-accent hover:bg-white/90 px-8 py-4">
-                  اشترك الآن
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="luxury-card">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="luxury-font-heading text-xl">
-                    تأكيد الاشتراك
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    هل أنت متأكد أنك تريد الاشتراك في النشرة الإخبارية؟ ستتلقى آخر التحديثات والعروض الحصرية مباشرة إلى بريدك الإلكتروني.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel className="luxury-btn-outline">
-                    إلغاء
-                  </AlertDialogCancel>
-                  <AlertDialogAction 
-                    className="luxury-btn-gold" 
-                    onClick={() => {
-                      setIsDialogOpen(false)
-                      setIsSubscribed(true)
-                    }}
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
+            >
+              <FormField
+                control={form.control}
+                name="email"
+                rules={{
+                  required: "البريد الإلكتروني مطلوب",
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: "يرجى إدخال بريد إلكتروني صالح"
+                  }
+                }}
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>البريد الإلكتروني</FormLabel>
+                    <FormControl>
+                      <input
+                        type="email"
+                        placeholder="أدخل بريدك الإلكتروني"
+                        className="luxury-form-input"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      أدخل بريدك الإلكتروني لتلقي العروض الحصرية
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open)
+                if (!open) {
+                  setOtpStep(false)
+                  setOtp('')
+                  setOtpError('')
+                }
+              }}>
+                <DialogTrigger asChild>
+                  <Button
+                    type="submit"
+                    className="bg-white text-accent hover:bg-white/90 px-8 py-4"
                   >
-                    تأكيد
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+                    اشترك الآن
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="luxury-dialog">
+                  <DialogHeader>
+                    <DialogTitle className="luxury-font-heading text-xl">
+                      {otpStep ? 'التحقق من OTP' : 'تأكيد الاشتراك'}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {otpStep
+                        ? 'أدخل رمز OTP المكون من 6 أرقام المرسل إلى بريدك الإلكتروني.'
+                        : 'هل أنت متأكد أنك تريد الاشتراك في النشرة الإخبارية؟ ستتلقى آخر التحديثات والعروض الحصرية مباشرة إلى بريدك الإلكتروني.'}
+                    </DialogDescription>
+                  </DialogHeader>
+                  {otpStep && (
+                    <div className="mt-4">
+                      <FormItem>
+                        <FormLabel>رمز OTP</FormLabel>
+                        <FormControl>
+                          <InputOTP
+                            maxLength={6}
+                            value={otp}
+                            onChange={(value) => setOtp(value)}
+                            className="luxury-otp-container"
+                          >
+                            <InputOTPGroup>
+                              <InputOTPSlot index={0} />
+                              <InputOTPSlot index={1} />
+                            </InputOTPGroup>
+                            <InputOTPSeparator />
+                            <InputOTPGroup>
+                              <InputOTPSlot index={2} />
+                              <InputOTPSlot index={3} />
+                            </InputOTPGroup>
+                            <InputOTPSeparator />
+                            <InputOTPGroup>
+                              <InputOTPSlot index={4} />
+                              <InputOTPSlot index={5} />
+                            </InputOTPGroup>
+                          </InputOTP>
+                        </FormControl>
+                        {otpError && <FormMessage>{otpError}</FormMessage>}
+                        <FormDescription>
+                          أدخل رمز OTP المرسل إلى بريدك الإلكتروني
+                        </FormDescription>
+                      </FormItem>
+                    </div>
+                  )}
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button className="luxury-btn-outline">
+                        إلغاء
+                      </Button>
+                    </DialogClose>
+                    <Button 
+                      className="luxury-btn-gold" 
+                      onClick={() => {
+                        if (otpStep) {
+                          handleOTPSubmit()
+                        } else {
+                          setOtpStep(true)
+                        }
+                      }}
+                    >
+                      {otpStep ? 'تأكيد OTP' : 'تأكيد'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </form>
+          </Form>
           {isSubscribed && (
             <Alert className="luxury-card mt-6 max-w-md mx-auto" variant="default">
               <AlertTitle className="luxury-font-heading">

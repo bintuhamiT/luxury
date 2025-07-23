@@ -179,6 +179,82 @@
   margin-bottom: 1rem;
 }
 
+/* في App.css */
+.luxury-context-menu {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: var(--luxury-shadow);
+  font-family: var(--luxury-font-body);
+}
+
+.luxury-context-menu-item {
+  transition: background-color 0.2s ease;
+}
+
+.luxury-context-menu-item:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* في App.css */
+.luxury-dialog {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: var(--luxury-shadow);
+  font-family: var(--luxury-font-body);
+  padding: 1.5rem;
+}
+
+/* في App.css */
+.luxury-drawer {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: var(--luxury-shadow);
+  font-family: var(--luxury-font-body);
+  padding: 1rem;
+}
+
+/* في App.css */
+.luxury-form-input {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: var(--luxury-shadow);
+  font-family: var(--luxury-font-body);
+  padding: 1rem 1.5rem;
+  width: 100%;
+  text-align: right;
+}
+.luxury-form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* في App.css */
+.luxury-hover-card {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: var(--luxury-shadow);
+  font-family: var(--luxury-font-body);
+  padding: 1.5rem;
+  max-width: 300px;
+}
+
+/* في App.css */
+.luxury-otp-container {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: var(--luxury-shadow);
+  font-family: var(--luxury-font-body);
+}
+
 .luxury-collapsible-trigger {
   display: flex;
   justify-content: space-between;
