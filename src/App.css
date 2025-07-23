@@ -143,6 +143,105 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+/* في App.css */
+.luxury-carousel {
+  max-width: 100%;
+  padding: 0 3rem; /* لإفساح المجال لأزرار التنقل */
+}
+
+.luxury-carousel-item {
+  flex: 0 0 auto;
+  width: 320px; /* عرض ثابت لكل عنصر لضمان تناسق العرض */
+  margin-right: 1rem; /* تباعد بين العناصر */
+}
+
+@media (max-width: 640px) {
+  .luxury-carousel-item {
+    width: 280px; /* عرض أصغر للشاشات الصغيرة */
+  }
+}
+/* في App.css */
+.luxury-chart {
+  max-width: 100%;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.05); /* خلفية خفيفة للتباين */
+  border-radius: 0.5rem;
+}
+/* في App.css */
+.luxury-checkbox-container {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}
+/* في App.css */
+.luxury-collapsible {
+  margin-bottom: 1rem;
+}
+
+.luxury-collapsible-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  font-family: var(--luxury-font-heading);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-foreground);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.luxury-collapsible-trigger:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.luxury-collapsible-content {
+  padding: 1rem;
+  background-color: var(--background);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: var(--text-muted-foreground);
+}
+/* في App.css */
+.luxury-command-dialog {
+  padding: 0;
+  border-radius: 0.5rem;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: var(--luxury-shadow);
+}
+
+.luxury-command-input {
+  background-color: var(--background);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--luxury-font-body);
+}
+
+.luxury-command-item {
+  font-family: var(--luxury-font-body);
+  transition: background-color 0.2s ease;
+}
+
+.luxury-command-item:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.luxury-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: var(--text-muted-foreground);
+}
+
+.luxury-checkbox label {
+  cursor: pointer;
+  font-family: var(--luxury-font-body);
+}
 
 .luxury-shadow {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);

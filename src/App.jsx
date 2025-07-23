@@ -7,7 +7,6 @@ import {
   X, 
   ShoppingBag, 
   Search, 
-  User, 
   Heart,
   Star,
   ArrowRight,
@@ -18,11 +17,80 @@ import {
   Phone,
   MapPin
 } from 'lucide-react'
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion.jsx'
+import { 
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel 
+} from '@/components/ui/alert-dialog.jsx'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert.jsx'
+import { AspectRatio } from '@/components/ui/aspect-ratio.jsx'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar.jsx'
+import { 
+  Breadcrumb, 
+  BreadcrumbList, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbPage, 
+  BreadcrumbSeparator 
+} from '@/components/ui/breadcrumb.jsx'
+import { Calendar } from '@/components/ui/calendar.jsx'
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel.jsx'
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent, 
+  ChartLegend, 
+  ChartLegendContent 
+} from '@/components/ui/chart.jsx'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
+import { Checkbox } from '@/components/ui/checkbox.jsx'
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible.jsx'
+import { 
+  CommandDialog, 
+  CommandInput, 
+  CommandList, 
+  CommandEmpty, 
+  CommandGroup, 
+  CommandItem, 
+  CommandShortcut 
+} from '@/components/ui/command.jsx'
 import './App.css'
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [user, setUser] = useState({
+    name: "أحمد",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+  })
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [filters, setFilters] = useState({
+    new: false,
+    sale: false,
+  })
+  const [events] = useState([
+    {
+      date: new Date(2025, 6, 25), // 25 يوليو 2025
+      title: "إطلاق مجموعة الصيف",
+      description: "اكتشف تشكيلتنا الصيفية الجديدة مع تصاميم حصرية."
+    },
+    {
+      date: new Date(2025, 7, 1), // 1 أغسطس 2025
+      title: "تخفيضات نهاية الموسم",
+      description: "استمتع بخصومات تصل إلى 50% على المنتجات المختارة."
+    }
+  ])
 
   // Hero slides data
   const heroSlides = [
@@ -89,7 +157,7 @@ function App() {
       name: "معطف شتوي أنيق",
       price: "1,799 ريال",
       originalPrice: "",
-      image: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1087&q=80",
+      image: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fEVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1087&q=80",
       rating: 4.6,
       reviews: 73,
       isNew: false,
@@ -111,7 +179,7 @@ function App() {
       name: "حذاء رياضي فاخر",
       price: "1,299 ريال",
       originalPrice: "",
-      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1112&q=80",
+      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fEVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1112&q=80",
       rating: 4.8,
       reviews: 201,
       isNew: false,
@@ -143,6 +211,90 @@ function App() {
     }
   ]
 
+  // Combine products and categories for search
+  const searchItems = [
+    ...featuredProducts.map((product) => ({
+      type: 'product',
+      name: product.name,
+      link: '#products',
+    })),
+    ...categories.map((category) => ({
+      type: 'category',
+      name: category.name,
+      link: '#categories',
+    })),
+  ]
+
+  // Filter search results based on query
+  const filteredSearchResults = searchItems.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  // FAQ data
+  const faqs = [
+    {
+      question: "ما هي سياسة الإرجاع؟",
+      answer: "نقدم سياسة إرجاع مرنة خلال 30 يومًا من تاريخ الشراء، بشرط أن تكون المنتجات في حالتها الأصلية مع الملصقات والتغليف الأصلي."
+    },
+    {
+      question: "كيف يمكنني تتبع طلبي؟",
+      answer: "بعد تأكيد الطلب، ستتلقى رابط تتبع عبر البريد الإلكتروني يتيح لك مراقبة حالة الشحنة في الوقت الفعلي."
+    },
+    {
+      question: "هل الشحن متاح دوليًا؟",
+      answer: "نعم، نقدم الشحن الدولي إلى معظم الدول. يمكنك التحقق من توفر الشحن إلى بلدك أثناء عملية الدفع."
+    },
+    {
+      question: "كيف يمكنني التواصل مع خدمة العملاء؟",
+      answer: "يمكنك التواصل معنا عبر البريد الإلكتروني (info@luxefashion.com) أو الهاتف (+966 50 123 4567) خلال ساعات العمل."
+    }
+  ]
+
+  // Sales statistics data
+  const salesData = [
+    { month: "يناير", women: 1200, men: 900, accessories: 600, shoes: 400 },
+    { month: "فبراير", women: 1500, men: 1100, accessories: 800, shoes: 500 },
+    { month: "مارس", women: 1800, men: 1300, accessories: 900, shoes: 600 },
+    { month: "أبريل", women: 2000, men: 1500, accessories: 1000, shoes: 700 },
+    { month: "مايو", women: 2200, men: 1700, accessories: 1200, shoes: 800 },
+    { month: "يونيو", women: 2500, men: 1900, accessories: 1400, shoes: 900 },
+  ]
+
+  const chartConfig = {
+    women: { label: "ملابس نسائية", color: "#FFD700" }, // ذهبي
+    men: { label: "ملابس رجالية", color: "#C0C0C0" }, // فضي
+    accessories: { label: "إكسسوارات", color: "#4682B4" }, // أزرق
+    shoes: { label: "أحذية", color: "#800000" }, // بورجوندي
+  }
+
+  // Our values data
+  const values = [
+    {
+      title: "الجودة",
+      description: "نلتزم بتقديم منتجات عالية الجودة مصنوعة من أفضل المواد لضمان المتانة والراحة."
+    },
+    {
+      title: "الابتكار",
+      description: "نبتكر تصاميم فريدة تجمع بين الأناقة العصرية واللمسة التقليدية لتلبية أذواق عملائنا."
+    },
+    {
+      title: "الاستدامة",
+      description: "نعمل على تقليل بصمتنا البيئية من خلال استخدام مواد مستدامة وممارسات إنتاج صديقة للبيئة."
+    },
+    {
+      title: "الأناقة",
+      description: "نؤمن بأن الأناقة هي تعبير عن الذات، ونسعى لتقديم قطع تعكس ذوقك الرفيع."
+    }
+  ]
+
+  // Handle filter changes
+  const handleFilterChange = (filterKey) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterKey]: !prev[filterKey],
+    }))
+  }
+
   // Auto-slide effect for hero
   useEffect(() => {
     const timer = setInterval(() => {
@@ -150,6 +302,24 @@ function App() {
     }, 5000)
     return () => clearInterval(timer)
   }, [heroSlides.length])
+
+  // Calendar modifiers for event dates
+  const eventDates = events.map(event => event.date)
+  const modifiers = {
+    event: eventDates,
+  }
+  const modifiersClassNames = {
+    event: 'luxury-event-date',
+  }
+
+  // Filter products based on selected filters
+  const filteredProducts = featuredProducts.filter((product) => {
+    if (!filters.new && !filters.sale) return true; // Show all if no filters selected
+    if (filters.new && filters.sale) return product.isNew && product.isSale;
+    if (filters.new) return product.isNew;
+    if (filters.sale) return product.isSale;
+    return false;
+  })
 
   return (
     <div className="min-h-screen bg-background luxury-font-body">
@@ -170,22 +340,30 @@ function App() {
                 <a href="#home" className="luxury-nav-link">الرئيسية</a>
                 <a href="#products" className="luxury-nav-link">المنتجات</a>
                 <a href="#categories" className="luxury-nav-link">الفئات</a>
+                <a href="#events" className="luxury-nav-link">الفعاليات</a>
+                <a href="#sales-stats" className="luxury-nav-link">إحصائيات المبيعات</a>
                 <a href="#about" className="luxury-nav-link">من نحن</a>
+                <a href="#faq" className="luxury-nav-link">الأسئلة الشائعة</a>
                 <a href="#contact" className="luxury-nav-link">تواصل معنا</a>
               </div>
             </div>
 
             {/* Icons */}
             <div className="hidden md:flex items-center space-x-4">
-              <Button variant="ghost" size="icon">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsSearchOpen(true)}
+              >
                 <Search className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon">
                 <Heart className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
+              <Avatar className="luxury-shadow">
+                <AvatarImage src={user.image} alt={user.name} />
+                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              </Avatar>
               <Button variant="ghost" size="icon">
                 <ShoppingBag className="h-5 w-5" />
               </Button>
@@ -211,12 +389,68 @@ function App() {
               <a href="#home" className="block px-3 py-2 luxury-nav-link">الرئيسية</a>
               <a href="#products" className="block px-3 py-2 luxury-nav-link">المنتجات</a>
               <a href="#categories" className="block px-3 py-2 luxury-nav-link">الفئات</a>
+              <a href="#events" className="block px-3 py-2 luxury-nav-link">الفعاليات</a>
+              <a href="#sales-stats" className="block px-3 py-2 luxury-nav-link">إحصائيات المبيعات</a>
               <a href="#about" className="block px-3 py-2 luxury-nav-link">من نحن</a>
+              <a href="#faq" className="block px-3 py-2 luxury-nav-link">الأسئلة الشائعة</a>
               <a href="#contact" className="block px-3 py-2 luxury-nav-link">تواصل معنا</a>
             </div>
           </div>
         )}
       </nav>
+
+      {/* Search Command Dialog */}
+      <CommandDialog
+        open={isSearchOpen}
+        onOpenChange={setIsSearchOpen}
+        title="البحث في LUXE FASHION"
+        description="ابحث عن المنتجات أو الفئات..."
+        className="luxury-command-dialog"
+      >
+        <CommandInput
+          placeholder="ابحث عن منتج أو فئة..."
+          className="luxury-command-input"
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+        />
+        <CommandList>
+          <CommandEmpty>لم يتم العثور على نتائج.</CommandEmpty>
+          <CommandGroup heading="المنتجات" className="luxury-command-item">
+            {filteredSearchResults
+              .filter((item) => item.type === 'product')
+              .map((item, index) => (
+                <CommandItem
+                  key={index}
+                  onSelect={() => {
+                    setIsSearchOpen(false)
+                    window.location.hash = item.link
+                  }}
+                  className="luxury-command-item"
+                >
+                  {item.name}
+                  <CommandShortcut>منتج</CommandShortcut>
+                </CommandItem>
+              ))}
+          </CommandGroup>
+          <CommandGroup heading="الفئات" className="luxury-command-item">
+            {filteredSearchResults
+              .filter((item) => item.type === 'category')
+              .map((item, index) => (
+                <CommandItem
+                  key={index}
+                  onSelect={() => {
+                    setIsSearchOpen(false)
+                    window.location.hash = item.link
+                  }}
+                  className="luxury-command-item"
+                >
+                  {item.name}
+                  <CommandShortcut>فئة</CommandShortcut>
+                </CommandItem>
+              ))}
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
 
       {/* Hero Section */}
       <section id="home" className="relative h-screen overflow-hidden">
@@ -267,9 +501,133 @@ function App() {
         </div>
       </section>
 
+      {/* Events Section */}
+      <section id="events" className="py-20 bg-secondary/30">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumb className="mb-6 luxury-shadow">
+            <BreadcrumbList className="luxury-font-body">
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>الفعاليات</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-4">
+              الفعاليات القادمة
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              تابع مواعيد إصداراتنا الجديدة والعروض الخاصة
+            </p>
+          </div>
+          <Card className="luxury-card luxury-shadow">
+            <CardContent className="p-6">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                modifiers={modifiers}
+                modifiersClassNames={modifiersClassNames}
+                className="luxury-shadow"
+                onDayClick={(date) => {
+                  const event = events.find(
+                    (e) => e.date.toDateString() === date.toDateString()
+                  )
+                  setSelectedDate(date)
+                }}
+              />
+              {selectedDate && (
+                <div className="mt-6">
+                  {events.find(
+                    (e) => e.date.toDateString() === selectedDate.toDateString()
+                  ) ? (
+                    <div>
+                      <h3 className="text-lg font-semibold luxury-font-heading mb-2">
+                        {
+                          events.find(
+                            (e) => e.date.toDateString() === selectedDate.toDateString()
+                          ).title
+                        }
+                      </h3>
+                      <p className="text-muted-foreground">
+                        {
+                          events.find(
+                            (e) => e.date.toDateString() === selectedDate.toDateString()
+                          ).description
+                        }
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground">
+                      لا توجد فعاليات في هذا التاريخ.
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Sales Statistics Section */}
+      <section id="sales-stats" className="py-20 bg-secondary/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumb className="mb-6 luxury-shadow">
+            <BreadcrumbList className="luxury-font-body">
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>إحصائيات المبيعات</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-4">
+              إحصائيات المبيعات
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              تابع أداء مبيعاتنا عبر الفئات المختلفة خلال الأشهر الماضية
+            </p>
+          </div>
+          <Card className="luxury-card luxury-shadow">
+            <CardContent className="p-6">
+              <ChartContainer config={chartConfig} className="luxury-chart">
+                <BarChart data={salesData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Bar dataKey="women" fill="var(--color-women)" />
+                  <Bar dataKey="men" fill="var(--color-men)" />
+                  <Bar dataKey="accessories" fill="var(--color-accessories)" />
+                  <Bar dataKey="shoes" fill="var(--color-shoes)" />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Categories Section */}
       <section id="categories" className="py-20 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumb className="mb-6 luxury-shadow">
+            <BreadcrumbList className="luxury-font-body">
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>الفئات</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-4">
               تسوق حسب الفئة
@@ -303,6 +661,17 @@ function App() {
       {/* Featured Products Section */}
       <section id="products" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumb className="mb-6 luxury-shadow">
+            <BreadcrumbList className="luxury-font-body">
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>المنتجات</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-4">
               المنتجات المميزة
@@ -312,78 +681,122 @@ function App() {
             </p>
           </div>
 
-          <div className="luxury-product-grid">
-            {featuredProducts.map((product) => (
-              <Card key={product.id} className="luxury-product-card luxury-card overflow-hidden">
-                <div className="relative">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="luxury-product-image"
-                  />
-                  <div className="luxury-product-overlay">
-                    <Button className="luxury-btn-gold">
-                      عرض التفاصيل
-                    </Button>
-                  </div>
-                  {product.isNew && (
-                    <Badge className="absolute top-4 left-4 bg-accent text-accent-foreground">
-                      جديد
-                    </Badge>
-                  )}
-                  {product.isSale && (
-                    <Badge className="absolute top-4 right-4 bg-destructive text-white">
-                      تخفيض
-                    </Badge>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-4 right-4 bg-white/80 hover:bg-white"
-                  >
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold luxury-font-heading mb-2">
-                    {product.name}
-                  </h3>
-                  <div className="flex items-center mb-2">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(product.rating)
-                              ? 'text-accent fill-current'
-                              : 'text-muted-foreground'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-muted-foreground mr-2">
-                      ({product.reviews})
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xl font-bold text-accent">
-                        {product.price}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          {product.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                    <Button size="sm" className="luxury-btn">
-                      أضف للسلة
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          {/* Filters */}
+          <div className="luxury-checkbox-container">
+            <div className="luxury-checkbox">
+              <Checkbox
+                id="new"
+                checked={filters.new}
+                onCheckedChange={() => handleFilterChange('new')}
+              />
+              <label htmlFor="new">جديد</label>
+            </div>
+            <div className="luxury-checkbox">
+              <Checkbox
+                id="sale"
+                checked={filters.sale}
+                onCheckedChange={() => handleFilterChange('sale')}
+              />
+              <label htmlFor="sale">تخفيض</label>
+            </div>
           </div>
+
+          <Carousel className="luxury-carousel">
+            <CarouselContent>
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <CarouselItem key={product.id} className="luxury-carousel-item">
+                    <Card className="luxury-product-card luxury-card overflow-hidden">
+                      <div className="relative">
+                        <AspectRatio ratio={4 / 3}>
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="luxury-product-image object-cover w-full h-full"
+                          />
+                        </AspectRatio>
+                        <div className="luxury-product-overlay">
+                          <Button className="luxury-btn-gold">
+                            عرض التفاصيل
+                          </Button>
+                        </div>
+                        {product.isNew && (
+                          <a href="#products">
+                            <Badge
+                              variant="secondary"
+                              className="absolute top-4 left-4 luxury-shadow"
+                            >
+                              جديد
+                            </Badge>
+                          </a>
+                        )}
+                        {product.isSale && (
+                          <a href="#products">
+                            <Badge
+                              variant="destructive"
+                              className="absolute top-4 right-4 luxury-shadow"
+                            >
+                              تخفيض
+                            </Badge>
+                          </a>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-4 right-4 bg-white/80 hover:bg-white"
+                        >
+                          <Heart className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <CardContent className="p-6">
+                        <h3 className="text-lg font-semibold luxury-font-heading mb-2">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-center mb-2">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < Math.floor(product.rating)
+                                    ? 'text-accent fill-current'
+                                    : 'text-muted-foreground'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm text-muted-foreground mr-2">
+                            ({product.reviews})
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xl font-bold text-accent">
+                              {product.price}
+                            </span>
+                            {product.originalPrice && (
+                              <span className="text-sm text-muted-foreground line-through">
+                                {product.originalPrice}
+                              </span>
+                            )}
+                          </div>
+                          <Button size="sm" className="luxury-btn">
+                            أضف للسلة
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  لا توجد منتجات تطابق الفلاتر المحددة.
+                </div>
+              )}
+            </CarouselContent>
+            <CarouselPrevious className="luxury-btn-outline" />
+            <CarouselNext className="luxury-btn-outline" />
+          </Carousel>
 
           <div className="text-center mt-12">
             <Button className="luxury-btn-outline text-lg px-12 py-6">
@@ -397,6 +810,17 @@ function App() {
       {/* About Section */}
       <section id="about" className="py-20 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumb className="mb-6 luxury-shadow">
+            <BreadcrumbList className="luxury-font-body">
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>من نحن</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-6">
@@ -424,7 +848,22 @@ function App() {
                   <div className="text-sm text-muted-foreground">سنوات خبرة</div>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground italic">
+              {/* Our Values */}
+              <h3 className="text-2xl font-bold luxury-font-heading mb-6">
+                قيمنا
+              </h3>
+              {values.map((value, index) => (
+                <Collapsible key={index} className="luxury-collapsible">
+                  <CollapsibleTrigger className="luxury-collapsible-trigger">
+                    {value.title}
+                    <span>{value.isOpen ? '−' : '+'}</span>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="luxury-collapsible-content">
+                    {value.description}
+                  </CollapsibleContent>
+                </Collapsible>
+              ))}
+              <p className="text-sm text-muted-foreground italic mt-8">
                 تم تطوير هذا الموقع بواسطة فريق Bin Tuhami المتخصص في التطوير والتصميم
               </p>
             </div>
@@ -437,6 +876,43 @@ function App() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg"></div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumb className="mb-6 luxury-shadow">
+            <BreadcrumbList className="luxury-font-body">
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>الأسئلة الشائعة</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-4">
+              الأسئلة الشائعة
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              إجابات على الأسئلة الأكثر شيوعًا حول خدماتنا ومنتجاتنا
+            </p>
+          </div>
+          <Accordion type="single" collapsible className="luxury-card">
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="luxury-font-heading text-lg">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </section>
 
@@ -455,10 +931,48 @@ function App() {
               placeholder="أدخل بريدك الإلكتروني"
               className="flex-1 px-6 py-4 rounded-lg border-0 focus:ring-2 focus:ring-white/50 text-right"
             />
-            <Button className="bg-white text-accent hover:bg-white/90 px-8 py-4">
-              اشترك الآن
-            </Button>
+            <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button className="bg-white text-accent hover:bg-white/90 px-8 py-4">
+                  اشترك الآن
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="luxury-card">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="luxury-font-heading text-xl">
+                    تأكيد الاشتراك
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    هل أنت متأكد أنك تريد الاشتراك في النشرة الإخبارية؟ ستتلقى آخر التحديثات والعروض الحصرية مباشرة إلى بريدك الإلكتروني.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="luxury-btn-outline">
+                    إلغاء
+                  </AlertDialogCancel>
+                  <AlertDialogAction 
+                    className="luxury-btn-gold" 
+                    onClick={() => {
+                      setIsDialogOpen(false)
+                      setIsSubscribed(true)
+                    }}
+                  >
+                    تأكيد
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
+          {isSubscribed && (
+            <Alert className="luxury-card mt-6 max-w-md mx-auto" variant="default">
+              <AlertTitle className="luxury-font-heading">
+                تم الاشتراك بنجاح!
+              </AlertTitle>
+              <AlertDescription>
+                شكرًا لاشتراكك في نشرتنا الإخبارية. ستصلك أحدث العروض والتحديثات قريبًا.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
       </section>
 
@@ -495,7 +1009,10 @@ function App() {
                 <li><a href="#home" className="text-primary-foreground/80 hover:text-accent transition-colors">الرئيسية</a></li>
                 <li><a href="#products" className="text-primary-foreground/80 hover:text-accent transition-colors">المنتجات</a></li>
                 <li><a href="#categories" className="text-primary-foreground/80 hover:text-accent transition-colors">الفئات</a></li>
+                <li><a href="#events" className="text-primary-foreground/80 hover:text-accent transition-colors">الفعاليات</a></li>
+                <li><a href="#sales-stats" className="text-primary-foreground/80 hover:text-accent transition-colors">إحصائيات المبيعات</a></li>
                 <li><a href="#about" className="text-primary-foreground/80 hover:text-accent transition-colors">من نحن</a></li>
+                <li><a href="#faq" className="text-primary-foreground/80 hover:text-accent transition-colors">الأسئلة الشائعة</a></li>
               </ul>
             </div>
 
@@ -547,4 +1064,3 @@ function App() {
 }
 
 export default App
-
