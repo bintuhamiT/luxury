@@ -160,7 +160,7 @@ function App() {
     },
     {
       title: "تصاميم حصرية",
-      subtitle: "من إبداع فريق Bin Tuhami",
+      subtitle: "من إبداع فريق Ababil",
       description: "قطع مميزة ومحدودة الإصدار تعكس ذوقك الرفيع",
       buttonText: "تسوق الحصريات",
       image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
@@ -1075,7 +1075,7 @@ function App() {
                 </Collapsible>
               ))}
               <p className="text-sm text-muted-foreground italic mt-8">
-                تم تطوير هذا الموقع بواسطة فريق Bin Tuhami المتخصص في التطوير والتصميم
+                تم تطوير هذا الموقع بواسطة فريق Ababil المتخصص في التطوير والتصميم
               </p>
             </div>
             <div className="relative">
@@ -1343,7 +1343,7 @@ function App() {
                 © 2024 LUXE FASHION. جميع الحقوق محفوظة.
               </p>
               <p className="text-primary-foreground/60 text-sm mt-4 md:mt-0">
-                تم التطوير بواسطة فريق Bin Tuhami
+                تم التطوير بواسطة فريق Ababil
               </p>
             </div>
           </div>
