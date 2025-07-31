@@ -281,8 +281,39 @@
   font-size: 1rem;
   color: var(--text-muted-foreground);
 }
-/* في App.css */
-.luxury-command-dialog {
+/* تأثير زجاجي */
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+}
+
+/* نمط زخرفي */
+.bg-luxury-pattern {
+  background-image: url('/luxury-pattern.png');
+  background-repeat: repeat;
+  background-size: 200px;
+}
+
+/* تأثير زجاجي */
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+}
+
+/* نمط زخرفي */
+.bg-luxury-pattern {
+  background-image: url('/luxury-pattern.png');
+  background-repeat: repeat;
+  background-size: 200px;
+}
+
+/* تدرج سفلي للبطاقات */
+.luxury-card-gradient {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}
+
+/* تدرج سفلي للبطاقات */
+.luxury-card-gradient {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}.luxury-command-dialog {
   padding: 0;
   border-radius: 0.5rem;
   background-color: var(--background);

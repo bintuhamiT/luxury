@@ -1,6 +1,4 @@
-"use client"
-
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent } from '@/components/ui/card.jsx'
@@ -140,7 +138,6 @@ function App() {
     name: "أحمد",
     image: "/favicon.ico"
   })
-  const [selectedDate, setSelectedDate] = useState(null)
   const [filters, setFilters] = useState({
     new: false,
     sale: false,
@@ -148,18 +145,6 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1)
   const productsPerPage = 3
 
-  const [events] = useState([
-    {
-      date: new Date(2025, 6, 25), // 25 يوليو 2025
-      title: "إطلاق مجموعة الصيف",
-      description: "اكتشف تشكيلتنا الصيفية الجديدة مع تصاميم حصرية."
-    },
-    {
-      date: new Date(2025, 7, 1), // 1 أغسطس 2025
-      title: "تخفيضات نهاية الموسم",
-      description: "استمتع بخصومات تصل إلى 50% على المنتجات المختارة."
-    }
-  ])
   const [otpStep, setOtpStep] = useState(false)
   const [otp, setOtp] = useState('')
   const [otpError, setOtpError] = useState('')
@@ -176,21 +161,18 @@ function App() {
       title: "مجموعة الخريف الجديدة",
       subtitle: "اكتشف أحدث صيحات الموضة",
       description: "تشكيلة فاخرة من الملابس العصرية المصممة خصيصاً لك",
-      buttonText: "تسوق الآن",
       image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
     },
     {
       title: "الأناقة الكلاسيكية",
       subtitle: "طابع خالد وعصري",
       description: "قطع أساسية تجمع بين الراحة والأناقة لإطلالة مثالية",
-      buttonText: "اكتشف المزيد",
       image: "https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80"
     },
     {
       title: "تصاميم حصرية",
       subtitle: "من إبداع فريق Ababil",
       description: "قطع مميزة ومحدودة الإصدار تعكس ذوقك الرفيع",
-      buttonText: "تسوق الحصريات",
       image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
     }
   ]
@@ -329,22 +311,6 @@ function App() {
     }
   ]
 
-  const salesData = [
-    { month: "يناير", women: 1200, men: 900, accessories: 600, shoes: 400 },
-    { month: "فبراير", women: 1500, men: 1100, accessories: 800, shoes: 500 },
-    { month: "مارس", women: 1800, men: 1300, accessories: 900, shoes: 600 },
-    { month: "أبريل", women: 2000, men: 1500, accessories: 1000, shoes: 700 },
-    { month: "مايو", women: 2200, men: 1700, accessories: 1200, shoes: 800 },
-    { month: "يونيو", women: 2500, men: 1900, accessories: 1400, shoes: 900 },
-  ]
-
-  const chartConfig = {
-    women: { label: "ملابس نسائية", color: "#FFD700" },
-    men: { label: "ملابس رجالية", color: "#C0C0C0" },
-    accessories: { label: "إكسسوارات", color: "#4682B4" },
-    shoes: { label: "أحذية", color: "#800000" },
-  }
-
   const values = [
     {
       title: "الجودة",
@@ -397,21 +363,6 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [heroSlides.length])
-
-  const eventDates = events.map(event => event.date)
-  const modifiers = {
-    event: eventDates,
-  }
-  const modifiersClassNames = {
-    event: 'luxury-event-date',
-  }
-
   const filteredProducts = featuredProducts.filter((product) => {
     if (!filters.new && !filters.sale) return true
     if (filters.new && filters.sale) return product.isNew && product.isSale
@@ -460,218 +411,169 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background luxury-font-body">
-      <nav className="luxury-nav">
+      <nav className="luxury-nav bg-background/95 backdrop-blur-md sticky top-0 z-50 luxury-shadow luxury-border-gold">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-20">
+            {/* Logo */}
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold luxury-font-heading luxury-text-gradient">
-                LUXE FASHION
-              </h1>
+              <a href="#home" className="flex items-center space-x-2">
+                <h1 className="text-3xl md:text-4xl font-bold luxury-font-heading luxury-text-gradient fade-in">
+                  LUXE FASHION
+                </h1>
+                <span className="text-accent text-sm luxury-font-body opacity-80">حصري</span>
+              </a>
             </div>
-            <div className="hidden md:block">
-              <Menubar className="luxury-menubar">
-                <MenubarMenu value="home">
-                  <MenubarTrigger>الرئيسية</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem className="luxury-menubar-item" asChild>
-                      <a href="#home">الصفحة الرئيسية</a>
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu value="products">
-                  <MenubarTrigger>المنتجات</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem className="luxury-menubar-item" asChild>
-                      <a href="#products">جميع المنتجات</a>
-                    </MenubarItem>
-                    <MenubarSeparator />
-                    <MenubarSub>
-                      <MenubarSubTrigger className="luxury-menubar-item">تصفح حسب الفئة</MenubarSubTrigger>
-                      <MenubarSubContent>
-                        <MenubarItem className="luxury-menubar-item" asChild>
-                          <a href="#products">ملابس نسائية</a>
-                        </MenubarItem>
-                        <MenubarItem className="luxury-menubar-item" asChild>
-                          <a href="#products">ملابس رجالية</a>
-                        </MenubarItem>
-                        <MenubarItem className="luxury-menubar-item" asChild>
-                          <a href="#products">إكسسوارات</a>
-                        </MenubarItem>
-                        <MenubarItem className="luxury-menubar-item" asChild>
-                          <a href="#products">أحذية</a>
-                        </MenubarItem>
-                      </MenubarSubContent>
-                    </MenubarSub>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu value="categories">
-                  <MenubarTrigger>الفئات</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem className="luxury-menubar-item" asChild>
-                      <a href="#categories">جميع الفئات</a>
-                    </MenubarItem>
-                    <MenubarSeparator />
-                    <MenubarSub>
-                      <MenubarSubTrigger className="luxury-menubar-item">تصفح حسب الفئة</MenubarSubTrigger>
-                      <MenubarSubContent>
-                        <MenubarItem className="luxury-menubar-item" asChild>
-                          <a href="#categories">ملابس نسائية</a>
-                        </MenubarItem>
-                        <MenubarItem className="luxury-menubar-item" asChild>
-                          <a href="#categories">ملابس رجالية</a>
-                        </MenubarItem>
-                        <MenubarItem className="luxury-menubar-item" asChild>
-                          <a href="#categories">إكسسوارات</a>
-                        </MenubarItem>
-                        <MenubarItem className="luxury-menubar-item" asChild>
-                          <a href="#categories">أحذية</a>
-                        </MenubarItem>
-                      </MenubarSubContent>
-                    </MenubarSub>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu value="events">
-                  <MenubarTrigger>الفعاليات</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem className="luxury-menubar-item" asChild>
-                      <a href="#events">الفعاليات القادمة</a>
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu value="sales-stats">
-                  <MenubarTrigger>إحصائيات المبيعات</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem className="luxury-menubar-item" asChild>
-                      <a href="#sales-stats">عرض الإحصائيات</a>
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu value="about">
-                  <MenubarTrigger>من نحن</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem className="luxury-menubar-item" asChild>
-                      <a href="#about">قصة العلامة التجارية</a>
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu value="faq">
-                  <MenubarTrigger>الأسئلة الشائعة</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem className="luxury-menubar-item" asChild>
-                      <a href="#faq">الأسئلة والإجابات</a>
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu value="contact">
-                  <MenubarTrigger>تواصل معنا</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem className="luxury-menubar-item" asChild>
-                      <a href="#contact">معلومات التواصل</a>
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
+
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-2">
+              <Menubar className="luxury-menubar bg-transparent border-none">
+                {[
+                  { value: "home", label: "الرئيسية", href: "#home" },
+                  {
+                    value: "products",
+                    label: "المنتجات",
+                    href: "#products",
+                    subMenu: [
+                      { label: "جميع المنتجات", href: "#products" },
+                      { label: "ملابس نسائية", href: "#products" },
+                      { label: "ملابس رجالية", href: "#products" },
+                      { label: "إكسسوارات", href: "#products" },
+                      { label: "أحذية", href: "#products" },
+                    ],
+                  },
+                  {
+                    value: "categories",
+                    label: "الفئات",
+                    href: "#categories",
+                    subMenu: [
+                      { label: "جميع الفئات", href: "#categories" },
+                      { label: "ملابس نسائية", href: "#categories" },
+                      { label: "ملابس رجالية", href: "#categories" },
+                      { label: "إكسسوارات", href: "#categories" },
+                      { label: "أحذية", href: "#categories" },
+                    ],
+                  },
+                  { value: "about", label: "من نحن", href: "#about" },
+                  { value: "faq", label: "الأسئلة الشائعة", href: "#faq" },
+                  { value: "contact", label: "تواصل معنا", href: "#contact" },
+                ].map((item) => (
+                  <MenubarMenu key={item.value} value={item.value}>
+                    <MenubarTrigger className="luxury-nav-link luxury-font-body text-base px-4 py-2 rounded-full hover:bg-accent/10 hover:text-accent smooth-transition">
+                      {item.label}
+                    </MenubarTrigger>
+                    <MenubarContent className="luxury-context-menu bg-background/95 backdrop-blur-sm luxury-shadow luxury-border-gold rounded-xl mt-2">
+                      <MenubarItem className="luxury-context-menu-item luxury-font-body" asChild>
+                        <a href={item.href} className="w-full">
+                          {item.label === "المنتجات" || item.label === "الفئات" ? `جميع ${item.label}` : item.label}
+                        </a>
+                      </MenubarItem>
+                      {item.subMenu && (
+                        <>
+                          <MenubarSeparator className="bg-border/50" />
+                          <MenubarSub>
+                            <MenubarSubTrigger className="luxury-context-menu-item luxury-font-body">
+                              تصفح حسب الفئة
+                            </MenubarSubTrigger>
+                            <MenubarSubContent className="luxury-context-menu bg-background/95 backdrop-blur-sm luxury-shadow luxury-border-gold rounded-xl">
+                              {item.subMenu.slice(1).map((subItem, index) => (
+                                <MenubarItem key={index} className="luxury-context-menu-item luxury-font-body" asChild>
+                                  <a href={subItem.href} className="w-full">
+                                    {subItem.label}
+                                  </a>
+                                </MenubarItem>
+                              ))}
+                            </MenubarSubContent>
+                          </MenubarSub>
+                        </>
+                      )}
+                    </MenubarContent>
+                  </MenubarMenu>
+                ))}
               </Menubar>
             </div>
-            <div className="hidden md:flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+
+            {/* Desktop Icons */}
+            <div className="hidden md:flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="luxury-shadow rounded-full hover:bg-accent/20 hover:text-accent smooth-transition"
                 onClick={() => setIsSearchOpen(true)}
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-6 w-6" />
               </Button>
-              <Button variant="ghost" size="icon">
-                <Heart className="h-5 w-5" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="luxury-shadow rounded-full hover:bg-accent/20 hover:text-accent smooth-transition"
+              >
+                <Heart className="h-6 w-6" />
               </Button>
-              <Avatar className="luxury-shadow">
+              <Avatar className="luxury-shadow luxury-border-gold">
                 <AvatarImage src={user.image} alt={user.name} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="luxury-font-body text-accent">
+                  {user.name.charAt(0)}
+                </AvatarFallback>
               </Avatar>
-              <Button variant="ghost" size="icon">
-                <ShoppingBag className="h-5 w-5" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="luxury-shadow rounded-full hover:bg-accent/20 hover:text-accent smooth-transition"
+              >
+                <ShoppingBag className="h-6 w-6" />
               </Button>
             </div>
+
+            {/* Mobile Menu Toggle */}
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="luxury-shadow rounded-full hover:bg-accent/20 hover:text-accent smooth-transition"
                     onClick={() => setIsMenuOpen(true)}
                   >
-                    <Menu className="h-6 w-6" />
+                    <Menu className="h-7 w-7" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="luxury-sheet">
+                <SheetContent side="right" className="luxury-drawer bg-background/95 backdrop-blur-sm luxury-shadow luxury-border-gold rounded-l-xl w-[280px] sm:w-[320px]">
                   <SheetHeader>
-                    <SheetTitle className="luxury-font-heading text-xl">
-                      القائمة
+                    <SheetTitle className="luxury-font-heading text-2xl luxury-text-gradient">
+                      القائمة الحصرية
                     </SheetTitle>
-                    <SheetDescription>اختر وجهتك</SheetDescription>
+                    <SheetDescription className="luxury-font-body text-muted-foreground">
+                      استكشف عالم الأناقة
+                    </SheetDescription>
                   </SheetHeader>
-                  <ScrollArea className="h-[calc(100vh-8rem)]">
-                    <div className="px-4 py-2 space-y-3">
-                      <a
-                        href="#home"
-                        className="block px-3 py-2 luxury-nav-link"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        الرئيسية
-                      </a>
-                      <a
-                        href="#products"
-                        className="block px-3 py-2 luxury-nav-link"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        المنتجات
-                      </a>
-                      <a
-                        href="#categories"
-                        className="block px-3 py-2 luxury-nav-link"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        الفئات
-                      </a>
-                      <a
-                        href="#events"
-                        className="block px-3 py-2 luxury-nav-link"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        الفعاليات
-                      </a>
-                      <a
-                        href="#sales-stats"
-                        className="block px-3 py-2 luxury-nav-link"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        إحصائيات المبيعات
-                      </a>
-                      <a
-                        href="#about"
-                        className="block px-3 py-2 luxury-nav-link"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        من نحن
-                      </a>
-                      <a
-                        href="#faq"
-                        className="block px-3 py-2 luxury-nav-link"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        الأسئلة الشائعة
-                      </a>
-                      <a
-                        href="#contact"
-                        className="block px-3 py-2 luxury-nav-link"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        تواصل معنا
-                      </a>
+                  <ScrollArea className="h-[calc(100vh-12rem)] py-4">
+                    <div className="space-y-4 px-4">
+                      {[
+                        { label: "الرئيسية", href: "#home" },
+                        { label: "المنتجات", href: "#products" },
+                        { label: "الفئات", href: "#categories" },
+                        { label: "من نحن", href: "#about" },
+                        { label: "الأسئلة الشائعة", href: "#faq" },
+                        { label: "تواصل معنا", href: "#contact" },
+                        { label: "عضوية حصرية", href: "#membership" },
+                      ].map((item, index) => (
+                        <a
+                          key={index}
+                          href={item.href}
+                          className="block px-4 py-3 luxury-nav-link luxury-font-body text-lg hover:bg-accent/10 hover:text-accent rounded-lg smooth-transition slide-in-right"
+                          style={{ animationDelay: `${index * 0.1}s` }}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {item.label}
+                        </a>
+                      ))}
                     </div>
                   </ScrollArea>
                   <SheetFooter>
                     <SheetClose asChild>
-                      <Button className="luxury-btn-outline">إغلاق</Button>
+                      <Button className="luxury-btn-gold w-full rounded-full text-lg">
+                        إغلاق
+                      </Button>
                     </SheetClose>
                   </SheetFooter>
                 </SheetContent>
@@ -757,10 +659,6 @@ function App() {
                   <p className="text-lg mb-8 max-w-2xl mx-auto slide-in-right">
                     {slide.description}
                   </p>
-                  <Button className="luxury-btn-gold text-lg px-12 py-6">
-                    {slide.buttonText}
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
                 </div>
               </div>
             </div>
@@ -779,393 +677,306 @@ function App() {
         </div>
       </section>
 
-      <section id="events" className="py-20 bg-secondary/30">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Breadcrumb className="mb-6 luxury-shadow">
-            <BreadcrumbList className="luxury-font-body">
+      <section id="categories" className="py-24 bg-gradient-to-b from-background to-secondary/10 luxury-hero relative overflow-hidden">
+        {/* خلفية زخرفية ديناميكية */}
+        <div className="absolute inset-0 bg-[url('/luxury-pattern.png')] opacity-5 pointer-events-none"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Breadcrumb */}
+          <Breadcrumb className="mb-10 luxury-shadow luxury-border-gold rounded-md bg-background/80 backdrop-blur-sm fade-in">
+            <BreadcrumbList className="luxury-font-body text-sm md:text-base text-foreground/80">
               <BreadcrumbItem>
-                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
+                <BreadcrumbLink href="#home" className="luxury-nav-link hover:text-accent">
+                  الرئيسية
+                </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className="text-accent mx-2" />
               <BreadcrumbItem>
-                <BreadcrumbPage>الفعاليات</BreadcrumbPage>
+                <BreadcrumbPage className="luxury-font-body text-accent">
+                  الفئات الحصرية
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-4">
-              الفعاليات القادمة
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              تابع مواعيد إصداراتنا الجديدة والعروض الخاصة
-            </p>
-          </div>
-          <Card className="luxury-card luxury-shadow">
-            <CardContent className="p-6">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                modifiers={modifiers}
-                modifiersClassNames={modifiersClassNames}
-                className="luxury-shadow"
-                onDayClick={(date) => {
-                  const event = events.find(
-                    (e) => e.date.toDateString() === date.toDateString()
-                  )
-                  setSelectedDate(date)
-                }}
-              />
-              {selectedDate && (
-                <div className="mt-6">
-                  {events.find(
-                    (e) => e.date.toDateString() === selectedDate.toDateString()
-                  ) ? (
-                    <div>
-                      <h3 className="text-lg font-semibold luxury-font-heading mb-2">
-                        {
-                          events.find(
-                            (e) => e.date.toDateString() === selectedDate.toDateString()
-                          ).title
-                        }
-                      </h3>
-                      <p className="text-muted-foreground">
-                        {
-                          events.find(
-                            (e) => e.date.toDateString() === selectedDate.toDateString()
-                          ).description
-                        }
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      لا توجد فعاليات في هذا التاريخ.
-                    </p>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
 
-      <section id="sales-stats" className="py-20 bg-secondary/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Breadcrumb className="mb-6 luxury-shadow">
-            <BreadcrumbList className="luxury-font-body">
-              <BreadcrumbItem>
-                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>إحصائيات المبيعات</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-4">
-              إحصائيات المبيعات
+          {/* Heading Section */}
+          <div className="text-center mb-20">
+            <h2 className="text-4xl sm:text-5xl lg:text-7xl font-bold luxury-font-heading luxury-text-gradient mb-6 slide-in-left">
+              اكتشف فئاتنا الفاخرة
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              تابع أداء مبيعاتنا عبر الفئات المختلفة خلال الأشهر الماضية
+            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto luxury-font-body fade-in">
+              تجربة تسوق استثنائية مع مجموعاتنا الحصرية من الملابس والإكسسوارات المصممة للأناقة اللافتة
             </p>
           </div>
-          <Card className="luxury-card luxury-shadow">
-            <CardContent className="p-6">
-              <ChartContainer config={chartConfig} className="luxury-chart">
-                <BarChart data={salesData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <ChartLegend content={<ChartLegendContent />} />
-                  <Bar dataKey="women" fill="var(--color-women)" />
-                  <Bar dataKey="men" fill="var(--color-men)" />
-                  <Bar dataKey="accessories" fill="var(--color-accessories)" />
-                  <Bar dataKey="shoes" fill="var(--color-shoes)" />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
 
-      <section id="categories" className="py-20 bg-secondary/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Breadcrumb className="mb-6 luxury-shadow">
-            <BreadcrumbList className="luxury-font-body">
-              <BreadcrumbItem>
-                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>الفئات</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-4">
-              تسوق حسب الفئة
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              اكتشف مجموعتنا المتنوعة من الملابس والإكسسوارات الفاخرة
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Categories Grid */}
+          <div className="luxury-product-grid gap-6 md:gap-8">
             {categories.map((category, index) => (
-              <Card key={index} className="luxury-card group cursor-pointer overflow-hidden">
-                <div className="relative h-64 overflow-hidden">
+              <Card
+                key={index}
+                className="luxury-product-card luxury-card luxury-shadow-hover group cursor-pointer overflow-hidden rounded-xl bg-card/95 backdrop-blur-sm border-none slide-in-right"
+                style={{ animationDelay: `${index * 0.2}s` }}
+              >
+                <div className="relative h-72 sm:h-80 md:h-96 overflow-hidden">
+                  {/* الصورة */}
                   <img
                     src={category.image}
                     alt={category.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="luxury-product-image group-hover:scale-110 group-hover:brightness-90"
                   />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <h3 className="text-xl font-bold luxury-font-heading">{category.name}</h3>
-                    <p className="text-sm opacity-90">{category.count}</p>
+                  {/* طبقة التغطية */}
+                  <div className="luxury-product-overlay bg-gradient-to-t from-black/60 to-transparent group-hover:bg-black/50">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 smooth-transition">
+                      <button className="luxury-btn-gold luxury-shadow text-sm md:text-base px-6 py-3 rounded-full smooth-transition group-hover:scale-105">
+                        تسوق الآن
+                      </button>
+                      <p className="text-white text-sm luxury-font-body mt-2 opacity-80">
+                        مجموعة حصرية
+                      </p>
+                    </div>
+                  </div>
+                  {/* نص الفئة */}
+                  <div className="absolute bottom-8 left-8 right-8 text-white luxury-font-heading">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold drop-shadow-lg">
+                      {category.name}
+                    </h3>
+                    <p className="text-sm md:text-base opacity-85 luxury-font-body">
+                      {category.count} قطعة متميزة
+                    </p>
                   </div>
                 </div>
               </Card>
             ))}
           </div>
+
+          {/* زر دعوة للعمل مركزي */}
+          <div className="text-center mt-16 fade-in">
+            <a
+              href="#shop"
+              className="luxury-btn-outline px-8 py-4 text-lg luxury-font-body rounded-full luxury-shadow-hover"
+            >
+              استكشف المجموعة الكاملة
+            </a>
+          </div>
         </div>
       </section>
 
-      <section id="products" className="py-20">
+      <section id="products" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Breadcrumb className="mb-6 luxury-shadow">
-            <BreadcrumbList className="luxury-font-body">
+          {/* Breadcrumb */}
+          <Breadcrumb className="mb-8 luxury-shadow luxury-border rounded-md bg-card/95">
+            <BreadcrumbList className="luxury-font-body text-base">
               <BreadcrumbItem>
-                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
+                <BreadcrumbLink href="#home" className="luxury-nav-link hover:text-accent">
+                  الرئيسية
+                </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className="text-muted-foreground mx-2" />
               <BreadcrumbItem>
-                <BreadcrumbPage>المنتجات</BreadcrumbPage>
+                <BreadcrumbPage className="luxury-font-body text-foreground">
+                  المنتجات
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+
+          {/* Heading Section */}
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-4">
-              المنتجات المميزة
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold luxury-font-heading mb-4 text-foreground">
+              منتجاتنا المميزة
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              تشكيلة مختارة بعناية من أفضل القطع في مجموعتنا
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto luxury-font-body">
+              تشكيلة مختارة بعناية من أجود القطع لتلبية احتياجاتك بأناقة
             </p>
           </div>
-          <ScrollArea className="h-[600px] rounded-md border p-4 luxury-shadow">
-            <div className="luxury-checkbox-container mb-8">
-              <div className="luxury-checkbox">
-                <Checkbox
-                  id="new"
-                  checked={filters.new}
-                  onCheckedChange={() => handleFilterChange('new')}
-                />
-                <label htmlFor="new">جديد</label>
-              </div>
-              <div className="luxury-checkbox">
-                <Checkbox
-                  id="sale"
-                  checked={filters.sale}
-                  onCheckedChange={() => handleFilterChange('sale')}
-                />
-                <label htmlFor="sale">تخفيض</label>
-              </div>
-              <RadioGroup
-                defaultValue="all"
-                onValueChange={(value) => {
-                  setFilters({
-                    new: value === 'new',
-                    sale: value === 'sale',
-                  })
-                  setCurrentPage(1)
-                }}
-                className="flex space-x-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="all" id="all" />
-                  <Label htmlFor="all">الكل</Label>
+
+          {/* Filters */}
+          <div className="luxury-checkbox-container mb-12 justify-start md:justify-center">
+            <RadioGroup
+              defaultValue="all"
+              onValueChange={(value) => {
+                setFilters({
+                  new: value === 'new',
+                  sale: value === 'sale',
+                });
+                setCurrentPage(1);
+              }}
+              className="flex flex-wrap gap-6"
+            >
+              {[
+                { value: 'all', label: 'الكل' },
+                { value: 'new', label: 'جديد' },
+                { value: 'sale', label: 'تخفيض' },
+              ].map((option) => (
+                <div key={option.value} className="flex items-center space-x-2 luxury-checkbox">
+                  <RadioGroupItem
+                    value={option.value}
+                    id={option.value}
+                    className="border-border text-accent focus:ring-accent"
+                  />
+                  <Label
+                    htmlFor={option.value}
+                    className="luxury-font-body text-base cursor-pointer text-foreground hover:text-accent smooth-transition"
+                  >
+                    {option.label}
+                  </Label>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="new" id="new-radio" />
-                  <Label htmlFor="new-radio">جديد</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="sale" id="sale-radio" />
-                  <Label htmlFor="sale-radio">تخفيض</Label>
-                </div>
-              </RadioGroup>
-            </div>
+              ))}
+            </RadioGroup>
+          </div>
+
+          {/* Products Grid */}
+          <div className="luxury-product-grid gap-8">
             {currentProducts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {currentProducts.map((product) => (
-                  <ContextMenu key={product.id}>
-                    <ContextMenuTrigger>
-                      <Card className="luxury-product-card luxury-card overflow-hidden">
-                        <div className="relative">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <AspectRatio ratio={4 / 3}>
-                                <img
-                                  src={product.image}
-                                  alt={product.name}
-                                  className="luxury-product-image object-cover w-full h-full"
-                                />
-                              </AspectRatio>
-                            </PopoverTrigger>
-                            <PopoverContent className="luxury-hover-card">
-                              <h3 className="text-lg font-semibold luxury-font-heading mb-2">
-                                {product.name}
-                              </h3>
-                              <p className="text-sm text-muted-foreground mb-3">
-                                {product.description}
-                              </p>
-                              <div className="flex items-center mb-2">
-                                <div className="flex items-center">
-                                  {[...Array(5)].map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className={`h-4 w-4 ${
-                                        i < Math.floor(product.rating)
-                                          ? 'text-accent fill-current'
-                                          : 'text-muted-foreground'
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                                <span className="text-sm text-muted-foreground mr-2">
-                                  ({product.reviews})
-                                </span>
-                              </div>
-                            </PopoverContent>
-                          </Popover>
-                          <div className="luxury-product-overlay">
-                            <Button className="luxury-btn-gold">
-                              عرض التفاصيل
-                            </Button>
-                          </div>
-                          {product.isNew && (
-                            <a href="#products">
-                              <Badge
-                                variant="secondary"
-                                className="absolute top-4 left-4 luxury-shadow"
-                              >
-                                جديد
-                              </Badge>
-                            </a>
-                          )}
-                          {product.isSale && (
-                            <a href="#products">
-                              <Badge
-                                variant="destructive"
-                                className="absolute top-4 right-4 luxury-shadow"
-                              >
-                                تخفيض
-                              </Badge>
-                            </a>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="absolute top-4 right-4 bg-white/80 hover:bg-white"
-                            onClick={() => toggleFavorite(product.id)}
-                          >
-                            <Heart
-                              className={`h-4 w-4 ${
-                                favorites.includes(product.id)
-                                  ? 'fill-current text-accent'
-                                  : 'text-muted-foreground'
-                              }`}
-                            />
+              currentProducts.map((product) => (
+                <ContextMenu key={product.id}>
+                  <ContextMenuTrigger>
+                    <Card className="luxury-product-card luxury-card border-border rounded-lg overflow-hidden">
+                      <div className="relative h-64 sm:h-72 md:h-80">
+                        {/* الصورة */}
+                        <AspectRatio ratio={4 / 3}>
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="luxury-product-image"
+                          />
+                        </AspectRatio>
+                        {/* طبقة التغطية */}
+                        <div className="luxury-product-overlay bg-black/20 opacity-0 group-hover:opacity-100 smooth-transition">
+                          <Button className="luxury-btn-outline text-sm px-6 py-2 absolute inset-x-0 bottom-4 mx-auto rounded-full">
+                            عرض التفاصيل
                           </Button>
                         </div>
-                        <CardContent className="p-6">
-                          <h3 className="text-lg font-semibold luxury-font-heading mb-2">
-                            {product.name}
-                          </h3>
-                          <div className="flex items-center mb-2">
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 ${
-                                    i < Math.floor(product.rating)
-                                      ? 'text-accent fill-current'
-                                      : 'text-muted-foreground'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm text-muted-foreground mr-2">
-                              ({product.reviews})
+                        {/* الشارات */}
+                        {product.isNew && (
+                          <Badge
+                            variant="secondary"
+                            className="absolute top-4 left-4 luxury-shadow bg-background text-foreground"
+                          >
+                            جديد
+                          </Badge>
+                        )}
+                        {product.isSale && (
+                          <Badge
+                            variant="destructive"
+                            className="absolute top-4 right-4 luxury-shadow bg-destructive text-destructive-foreground"
+                          >
+                            تخفيض {product.discount}%
+                          </Badge>
+                        )}
+                        {/* زر المفضلة */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-4 right-4 bg-background/80 hover:bg-background rounded-full"
+                          onClick={() => toggleFavorite(product.id)}
+                        >
+                          <Heart
+                            className={`h-5 w-5 smooth-transition ${
+                              favorites.includes(product.id)
+                                ? 'fill-current text-accent'
+                                : 'text-muted-foreground'
+                            }`}
+                          />
+                        </Button>
+                      </div>
+                      {/* محتوى البطاقة */}
+                      <CardContent className="p-6">
+                        <h3 className="text-lg md:text-xl font-semibold luxury-font-heading mb-2 text-foreground">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3 luxury-font-body line-clamp-2">
+                          {product.description}
+                        </p>
+                        <div className="flex items-center mb-3">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < Math.floor(product.rating)
+                                    ? 'text-accent fill-current'
+                                    : 'text-muted-foreground'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm text-muted-foreground mr-2">
+                            ({product.reviews})
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xl md:text-2xl font-bold text-foreground">
+                              {product.price}
                             </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-xl font-bold text-accent">
-                                {product.price}
+                            {product.originalPrice && (
+                              <span className="text-sm text-muted-foreground line-through">
+                                {product.originalPrice}
                               </span>
-                              {product.originalPrice && (
-                                <span className="text-sm text-muted-foreground line-through">
-                                  {product.originalPrice}
-                                </span>
-                              )}
-                            </div>
-                            <Button size="sm" className="luxury-btn">
-                              أضف للسلة
-                            </Button>
+                            )}
                           </div>
-                        </CardContent>
-                      </Card>
-                    </ContextMenuTrigger>
-                    <ContextMenuContent className="luxury-context-menu">
-                      <ContextMenuItem
-                        className="luxury-context-menu-item"
-                        onSelect={() => toggleFavorite(product.id)}
-                      >
-                        {favorites.includes(product.id)
-                          ? 'إزالة من المفضلة'
-                          : 'إضافة إلى المفضلة'}
-                        <ContextMenuShortcut>
-                          <Heart className="h-4 w-4" />
-                        </ContextMenuShortcut>
-                      </ContextMenuItem>
-                      <ContextMenuItem
-                        className="luxury-context-menu-item"
-                        onSelect={() => alert(`تمت مشاركة ${product.name}`)}
-                      >
-                        مشاركة المنتج
-                        <ContextMenuShortcut>مشاركة</ContextMenuShortcut>
-                      </ContextMenuItem>
-                      <ContextMenuSeparator />
-                      <ContextMenuItem
-                        className="luxury-context-menu-item"
-                        onSelect={() => (window.location.hash = '#products')}
-                      >
-                        عرض التفاصيل
-                        <ContextMenuShortcut>عرض</ContextMenuShortcut>
-                      </ContextMenuItem>
-                    </ContextMenuContent>
-                  </ContextMenu>
-                ))}
-              </div>
+                          <Button
+                            size="sm"
+                            className="luxury-btn-outline text-sm px-4 py-2 rounded-full"
+                          >
+                            أضف للسلة
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent className="luxury-context-menu">
+                    <ContextMenuItem
+                      className="luxury-context-menu-item"
+                      onSelect={() => toggleFavorite(product.id)}
+                    >
+                      {favorites.includes(product.id)
+                        ? 'إزالة من المفضلة'
+                        : 'إضافة إلى المفضلة'}
+                      <ContextMenuShortcut>
+                        <Heart className="h-4 w-4" />
+                      </ContextMenuShortcut>
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      className="luxury-context-menu-item"
+                      onSelect={() => alert(`تمت مشاركة ${product.name}`)}
+                    >
+                      مشاركة المنتج
+                      <ContextMenuShortcut>مشاركة</ContextMenuShortcut>
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      className="luxury-context-menu-item"
+                      onSelect={() => (window.location.hash = '#product-details')}
+                    >
+                      عرض التفاصيل
+                      <ContextMenuShortcut>عرض</ContextMenuShortcut>
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+              ))
             ) : (
-              <div className="text-center text-muted-foreground py-8">
-                لا توجد منتجات تطابق الفلاتر المحددة.
+              <div className="text-center text-muted-foreground py-12 luxury-font-body text-lg">
+                لا توجد منتجات تطابق الفلاتر المحددة. جرب تعديل اختياراتك.
               </div>
             )}
-          </ScrollArea>
+          </div>
+
+          {/* Pagination */}
           {totalPages > 1 && (
-            <Pagination className="luxury-pagination mt-12">
-              <PaginationContent>
+            <Pagination className="mt-12 luxury-shadow">
+              <PaginationContent className="flex-wrap justify-center gap-2">
                 <PaginationItem>
                   <PaginationPrevious
                     href="#products"
                     onClick={(e) => {
-                      e.preventDefault()
-                      if (currentPage > 1) setCurrentPage(currentPage - 1)
+                      e.preventDefault();
+                      if (currentPage > 1) setCurrentPage(currentPage - 1);
                     }}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                    className={`luxury-btn-outline px-4 py-2 rounded-md smooth-transition ${
+                      currentPage === 1 ? 'pointer-events-none opacity-50' : ''
+                    }`}
                   />
                 </PaginationItem>
                 {getPageNumbers().map((page) => (
@@ -1174,9 +985,12 @@ function App() {
                       href="#products"
                       isActive={currentPage === page}
                       onClick={(e) => {
-                        e.preventDefault()
-                        setCurrentPage(page)
+                        e.preventDefault();
+                        setCurrentPage(page);
                       }}
+                      className={`luxury-btn-outline px-4 py-2 rounded-md smooth-transition ${
+                        currentPage === page ? 'bg-primary text-primary-foreground' : ''
+                      }`}
                     >
                       {page}
                     </PaginationLink>
@@ -1184,26 +998,31 @@ function App() {
                 ))}
                 {totalPages > 5 && currentPage < totalPages - 2 && (
                   <PaginationItem>
-                    <PaginationEllipsis />
+                    <PaginationEllipsis className="text-muted-foreground" />
                   </PaginationItem>
                 )}
                 <PaginationItem>
                   <PaginationNext
                     href="#products"
                     onClick={(e) => {
-                      e.preventDefault()
-                      if (currentPage < totalPages) setCurrentPage(currentPage + 1)
+                      e.preventDefault();
+                      if (currentPage < totalPages) setCurrentPage(currentPage + 1);
                     }}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                    className={`luxury-btn-outline px-4 py-2 rounded-md smooth-transition ${
+                      currentPage === totalPages ? 'pointer-events-none opacity-50' : ''
+                    }`}
                   />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
           )}
+
+          {/* زر دعوة للعمل المركزي */}
           <div className="text-center mt-12">
-            <Button className="luxury-btn-outline text-lg px-12 py-6">
+            <Button
+              className="luxury-btn-outline text-base px-8 py-4 rounded-md smooth-transition"
+            >
               عرض جميع المنتجات
-              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </div>
@@ -1312,148 +1131,6 @@ function App() {
               </AccordionItem>
             ))}
           </Accordion>
-        </div>
-      </section>
-
-      <section className="py-20 luxury-gradient">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-6 text-white">
-            اشترك في النشرة الإخبارية
-          </h2>
-          <p className="text-xl text-white/90 mb-8">
-            كن أول من يعلم بأحدث المنتجات والعروض الحصرية
-          </p>
-          <Progress value={isSubscribed ? 100 : 0} className="w-1/2 mx-auto mb-6" />
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
-            >
-              <FormField
-                control={form.control}
-                name="email"
-                rules={{
-                  required: "البريد الإلكتروني مطلوب",
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: "يرجى إدخال بريد إلكتروني صالح"
-                  }
-                }}
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <Label htmlFor="email" className="luxury-form-label">البريد الإلكتروني</Label>
-                    <FormControl>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="أدخل بريدك الإلكتروني"
-                        className="luxury-form-input"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      أدخل بريدك الإلكتروني لتلقي العروض الحصرية
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                setIsDialogOpen(open)
-                if (!open) {
-                  setOtpStep(false)
-                  setOtp('')
-                  setOtpError('')
-                }
-              }}>
-                <DialogTrigger asChild>
-                  <Button
-                    type="submit"
-                    className="bg-white text-accent hover:bg-white/90 px-8 py-4"
-                  >
-                    اشترك الآن
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="luxury-dialog">
-                  <DialogHeader>
-                    <DialogTitle className="luxury-font-heading text-xl">
-                      {otpStep ? 'التحقق من OTP' : 'تأكيد الاشتراك'}
-                    </DialogTitle>
-                    <DialogDescription>
-                      {otpStep
-                        ? 'أدخل رمز OTP المكون من 6 أرقام المرسل إلى بريدك الإلكتروني.'
-                        : 'هل أنت متأكد أنك تريد الاشتراك في النشرة الإخبارية؟ ستتلقى آخر التحديثات والعروض الحصرية مباشرة إلى بريدك الإلكتروني.'}
-                    </DialogDescription>
-                  </DialogHeader>
-                  {otpStep && (
-                    <div className="mt-4">
-                      <Progress value={(otp.length / 6) * 100} className="mb-4" />
-                      <FormItem>
-                        <Label htmlFor="otp" className="luxury-otp-label">رمز OTP</Label>
-                        <FormControl>
-                          <InputOTP
-                            id="otp"
-                            maxLength={6}
-                            value={otp}
-                            onChange={(value) => setOtp(value)}
-                            className="luxury-otp-container"
-                          >
-                            <InputOTPGroup>
-                              <InputOTPSlot index={0} />
-                              <InputOTPSlot index={1} />
-                            </InputOTPGroup>
-                            <InputOTPSeparator />
-                            <InputOTPGroup>
-                              <InputOTPSlot index={2} />
-                              <InputOTPSlot index={3} />
-                            </InputOTPGroup>
-                            <InputOTPSeparator />
-                            <InputOTPGroup>
-                              <InputOTPSlot index={4} />
-                              <InputOTPSlot index={5} />
-                            </InputOTPGroup>
-                          </InputOTP>
-                        </FormControl>
-                        {otpError && <FormMessage>{otpError}</FormMessage>}
-                        <FormDescription>
-                          أدخل رمز OTP المرسل إلى بريدك الإلكتروني
-                        </FormDescription>
-                      </FormItem>
-                    </div>
-                  )}
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button className="luxury-btn-outline">
-                        إلغاء
-                      </Button>
-                    </DialogClose>
-                    <Button 
-                      className="luxury-btn-gold" 
-                      onClick={() => {
-                        if (otpStep) {
-                          handleOTPSubmit()
-                        } else {
-                          setOtpStep(true)
-                        }
-                      }}
-                    >
-                      {otpStep ? 'تأكيد OTP' : 'تأكيد'}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </form>
-          </Form>
-          {isSubscribed && (
-            <Alert className="luxury-card mt-6 max-w-md mx-auto" variant="default">
-              <AlertTitle className="luxury-font-heading">
-                تم الاشتراك بنجاح!
-              </AlertTitle>
-              <AlertDescription>
-                شكرًا لاشتراكك في نشرتنا الإخبارية. ستصلك أحدث العروض والتحديثات قريبًا.
-              </AlertDescription>
-            </Alert>
-          )}
         </div>
       </section>
 
