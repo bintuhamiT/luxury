@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button.jsx'
@@ -31,7 +33,6 @@ import {
   BreadcrumbSeparator 
 } from '@/components/ui/breadcrumb.jsx'
 import { Calendar } from '@/components/ui/calendar.jsx'
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel.jsx'
 import { 
   ChartContainer, 
   ChartTooltip, 
@@ -83,22 +84,48 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormDescription,
   FormMessage
 } from '@/components/ui/form.jsx'
 import {
-  HoverCard,
-  HoverCardTrigger,
-  HoverCardContent
-} from '@/components/ui/hover-card.jsx'
+  Popover,
+  PopoverTrigger,
+  PopoverContent
+} from '@/components/ui/popover.jsx'
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
   InputOTPSeparator
 } from '@/components/ui/input-otp.jsx'
+import { Input } from '@/components/ui/input.jsx'
+import { Label } from '@/components/ui/label.jsx'
+import {
+  Menubar,
+  MenubarMenu,
+  MenubarTrigger,
+  MenubarContent,
+  MenubarItem,
+  MenubarSeparator,
+  MenubarSub,
+  MenubarSubTrigger,
+  MenubarSubContent
+} from '@/components/ui/menubar.jsx'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis
+} from '@/components/ui/pagination.jsx'
+import { Progress } from '@/components/ui/progress.jsx'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group.jsx'
+import { ScrollArea } from '@/components/ui/scroll-area.jsx'
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from '@/components/ui/sheet.jsx'
+
 import './App.css'
 
 function App() {
@@ -118,6 +145,9 @@ function App() {
     new: false,
     sale: false,
   })
+  const [currentPage, setCurrentPage] = useState(1)
+  const productsPerPage = 3
+
   const [events] = useState([
     {
       date: new Date(2025, 6, 25), // 25 يوليو 2025
@@ -130,11 +160,10 @@ function App() {
       description: "استمتع بخصومات تصل إلى 50% على المنتجات المختارة."
     }
   ])
-  const [otpStep, setOtpStep] = useState(false) // State to toggle between email confirmation and OTP input
-  const [otp, setOtp] = useState('') // State to store OTP value
-  const [otpError, setOtpError] = useState('') // State to store OTP error message
+  const [otpStep, setOtpStep] = useState(false)
+  const [otp, setOtp] = useState('')
+  const [otpError, setOtpError] = useState('')
 
-  // Initialize form with react-hook-form
   const form = useForm({
     defaultValues: {
       email: ""
@@ -142,7 +171,6 @@ function App() {
     mode: "onSubmit"
   })
 
-  // Hero slides data
   const heroSlides = [
     {
       title: "مجموعة الخريف الجديدة",
@@ -160,14 +188,13 @@ function App() {
     },
     {
       title: "تصاميم حصرية",
-      subtitle: "من إبداع فريق Ababil",
+      subtitle: "من إبداع فريق Bin Tuhami",
       description: "قطع مميزة ومحدودة الإصدار تعكس ذوقك الرفيع",
       buttonText: "تسوق الحصريات",
       image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
     }
   ]
 
-  // Featured products data with descriptions
   const featuredProducts = [
     {
       id: 1,
@@ -243,7 +270,6 @@ function App() {
     }
   ]
 
-  // Categories data
   const categories = [
     {
       name: "ملابس نسائية",
@@ -267,7 +293,6 @@ function App() {
     }
   ]
 
-  // Combine products and categories for search
   const searchItems = [
     ...featuredProducts.map((product) => ({
       type: 'product',
@@ -281,12 +306,10 @@ function App() {
     })),
   ]
 
-  // Filter search results based on query
   const filteredSearchResults = searchItems.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // FAQ data
   const faqs = [
     {
       question: "ما هي سياسة الإرجاع؟",
@@ -306,7 +329,6 @@ function App() {
     }
   ]
 
-  // Sales statistics data
   const salesData = [
     { month: "يناير", women: 1200, men: 900, accessories: 600, shoes: 400 },
     { month: "فبراير", women: 1500, men: 1100, accessories: 800, shoes: 500 },
@@ -317,13 +339,12 @@ function App() {
   ]
 
   const chartConfig = {
-    women: { label: "ملابس نسائية", color: "#FFD700" }, // ذهبي
-    men: { label: "ملابس رجالية", color: "#C0C0C0" }, // فضي
-    accessories: { label: "إكسسوارات", color: "#4682B4" }, // أزرق
-    shoes: { label: "أحذية", color: "#800000" }, // بورجوندي
+    women: { label: "ملابس نسائية", color: "#FFD700" },
+    men: { label: "ملابس رجالية", color: "#C0C0C0" },
+    accessories: { label: "إكسسوارات", color: "#4682B4" },
+    shoes: { label: "أحذية", color: "#800000" },
   }
 
-  // Our values data
   const values = [
     {
       title: "الجودة",
@@ -343,15 +364,14 @@ function App() {
     }
   ]
 
-  // Handle filter changes
   const handleFilterChange = (filterKey) => {
     setFilters((prev) => ({
       ...prev,
       [filterKey]: !prev[filterKey],
     }))
+    setCurrentPage(1) // Reset to first page when filters change
   }
 
-  // Handle adding/removing from favorites
   const toggleFavorite = (productId) => {
     setFavorites((prev) =>
       prev.includes(productId)
@@ -360,14 +380,12 @@ function App() {
     )
   }
 
-  // Handle form submission
   const onSubmit = (data) => {
-    setIsDialogOpen(true) // Open dialog on successful form submission
+    setIsDialogOpen(true)
   }
 
-  // Handle OTP submission
   const handleOTPSubmit = () => {
-    if (otp === '123456') { // Simulated correct OTP for demo
+    if (otp === '123456') {
       setIsSubscribed(true)
       setIsDialogOpen(false)
       setOtpStep(false)
@@ -379,7 +397,6 @@ function App() {
     }
   }
 
-  // Auto-slide effect for hero
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
@@ -387,7 +404,6 @@ function App() {
     return () => clearInterval(timer)
   }, [heroSlides.length])
 
-  // Calendar modifiers for event dates
   const eventDates = events.map(event => event.date)
   const modifiers = {
     event: eventDates,
@@ -396,43 +412,166 @@ function App() {
     event: 'luxury-event-date',
   }
 
-  // Filter products based on selected filters
   const filteredProducts = featuredProducts.filter((product) => {
-    if (!filters.new && !filters.sale) return true; // Show all if no filters selected
-    if (filters.new && filters.sale) return product.isNew && product.isSale;
-    if (filters.new) return product.isNew;
-    if (filters.sale) return product.isSale;
-    return false;
+    if (!filters.new && !filters.sale) return true
+    if (filters.new && filters.sale) return product.isNew && product.isSale
+    if (filters.new) return product.isNew
+    if (filters.sale) return product.isSale
+    return false
   })
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+  const indexOfLastProduct = currentPage * productsPerPage
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pageNumbers = []
+    const maxPagesToShow = 5
+    let startPage, endPage
+
+    if (totalPages <= maxPagesToShow) {
+      startPage = 1
+      endPage = totalPages
+    } else {
+      const maxPagesBeforeCurrent = Math.floor(maxPagesToShow / 2)
+      const maxPagesAfterCurrent = Math.ceil(maxPagesToShow / 2) - 1
+
+      if (currentPage <= maxPagesBeforeCurrent) {
+        startPage = 1
+        endPage = maxPagesToShow
+      } else if (currentPage + maxPagesAfterCurrent >= totalPages) {
+        startPage = totalPages - maxPagesToShow + 1
+        endPage = totalPages
+      } else {
+        startPage = currentPage - maxPagesBeforeCurrent
+        endPage = currentPage + maxPagesAfterCurrent
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i)
+    }
+
+    return pageNumbers
+  }
 
   return (
     <div className="min-h-screen bg-background luxury-font-body">
-      {/* Navigation */}
       <nav className="luxury-nav">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
             <div className="flex-shrink-0">
               <h1 className="text-2xl font-bold luxury-font-heading luxury-text-gradient">
                 LUXE FASHION
               </h1>
             </div>
-
-            {/* Desktop Navigation */}
             <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
-                <a href="#home" className="luxury-nav-link">الرئيسية</a>
-                <a href="#products" className="luxury-nav-link">المنتجات</a>
-                <a href="#categories" className="luxury-nav-link">الفئات</a>
-                <a href="#events" className="luxury-nav-link">الفعاليات</a>
-                <a href="#sales-stats" className="luxury-nav-link">إحصائيات المبيعات</a>
-                <a href="#about" className="luxury-nav-link">من نحن</a>
-                <a href="#faq" className="luxury-nav-link">الأسئلة الشائعة</a>
-                <a href="#contact" className="luxury-nav-link">تواصل معنا</a>
-              </div>
+              <Menubar className="luxury-menubar">
+                <MenubarMenu value="home">
+                  <MenubarTrigger>الرئيسية</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem className="luxury-menubar-item" asChild>
+                      <a href="#home">الصفحة الرئيسية</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="products">
+                  <MenubarTrigger>المنتجات</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem className="luxury-menubar-item" asChild>
+                      <a href="#products">جميع المنتجات</a>
+                    </MenubarItem>
+                    <MenubarSeparator />
+                    <MenubarSub>
+                      <MenubarSubTrigger className="luxury-menubar-item">تصفح حسب الفئة</MenubarSubTrigger>
+                      <MenubarSubContent>
+                        <MenubarItem className="luxury-menubar-item" asChild>
+                          <a href="#products">ملابس نسائية</a>
+                        </MenubarItem>
+                        <MenubarItem className="luxury-menubar-item" asChild>
+                          <a href="#products">ملابس رجالية</a>
+                        </MenubarItem>
+                        <MenubarItem className="luxury-menubar-item" asChild>
+                          <a href="#products">إكسسوارات</a>
+                        </MenubarItem>
+                        <MenubarItem className="luxury-menubar-item" asChild>
+                          <a href="#products">أحذية</a>
+                        </MenubarItem>
+                      </MenubarSubContent>
+                    </MenubarSub>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="categories">
+                  <MenubarTrigger>الفئات</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem className="luxury-menubar-item" asChild>
+                      <a href="#categories">جميع الفئات</a>
+                    </MenubarItem>
+                    <MenubarSeparator />
+                    <MenubarSub>
+                      <MenubarSubTrigger className="luxury-menubar-item">تصفح حسب الفئة</MenubarSubTrigger>
+                      <MenubarSubContent>
+                        <MenubarItem className="luxury-menubar-item" asChild>
+                          <a href="#categories">ملابس نسائية</a>
+                        </MenubarItem>
+                        <MenubarItem className="luxury-menubar-item" asChild>
+                          <a href="#categories">ملابس رجالية</a>
+                        </MenubarItem>
+                        <MenubarItem className="luxury-menubar-item" asChild>
+                          <a href="#categories">إكسسوارات</a>
+                        </MenubarItem>
+                        <MenubarItem className="luxury-menubar-item" asChild>
+                          <a href="#categories">أحذية</a>
+                        </MenubarItem>
+                      </MenubarSubContent>
+                    </MenubarSub>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="events">
+                  <MenubarTrigger>الفعاليات</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem className="luxury-menubar-item" asChild>
+                      <a href="#events">الفعاليات القادمة</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="sales-stats">
+                  <MenubarTrigger>إحصائيات المبيعات</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem className="luxury-menubar-item" asChild>
+                      <a href="#sales-stats">عرض الإحصائيات</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="about">
+                  <MenubarTrigger>من نحن</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem className="luxury-menubar-item" asChild>
+                      <a href="#about">قصة العلامة التجارية</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="faq">
+                  <MenubarTrigger>الأسئلة الشائعة</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem className="luxury-menubar-item" asChild>
+                      <a href="#faq">الأسئلة والإجابات</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="contact">
+                  <MenubarTrigger>تواصل معنا</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem className="luxury-menubar-item" asChild>
+                      <a href="#contact">معلومات التواصل</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
             </div>
-
-            {/* Icons */}
             <div className="hidden md:flex items-center space-x-4">
               <Button 
                 variant="ghost" 
@@ -452,11 +591,9 @@ function App() {
                 <ShoppingBag className="h-5 w-5" />
               </Button>
             </div>
-
-            {/* Mobile menu button */}
             <div className="md:hidden">
-              <Drawer open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                <DrawerTrigger asChild>
+              <Sheet>
+                <SheetTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -464,91 +601,92 @@ function App() {
                   >
                     <Menu className="h-6 w-6" />
                   </Button>
-                </DrawerTrigger>
-                <DrawerContent className="luxury-drawer" data-vaul-drawer-direction="right">
-                  <DrawerHeader>
-                    <DrawerTitle className="luxury-font-heading text-xl">
+                </SheetTrigger>
+                <SheetContent side="right" className="luxury-sheet">
+                  <SheetHeader>
+                    <SheetTitle className="luxury-font-heading text-xl">
                       القائمة
-                    </DrawerTitle>
-                    <DrawerDescription>اختر وجهتك</DrawerDescription>
-                  </DrawerHeader>
-                  <div className="px-4 py-2 space-y-3">
-                    <a
-                      href="#home"
-                      className="block px-3 py-2 luxury-nav-link"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      الرئيسية
-                    </a>
-                    <a
-                      href="#products"
-                      className="block px-3 py-2 luxury-nav-link"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      المنتجات
-                    </a>
-                    <a
-                      href="#categories"
-                      className="block px-3 py-2 luxury-nav-link"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      الفئات
-                    </a>
-                    <a
-                      href="#events"
-                      className="block px-3 py-2 luxury-nav-link"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      الفعاليات
-                    </a>
-                    <a
-                      href="#sales-stats"
-                      className="block px-3 py-2 luxury-nav-link"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      إحصائيات المبيعات
-                    </a>
-                    <a
-                      href="#about"
-                      className="block px-3 py-2 luxury-nav-link"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      من نحن
-                    </a>
-                    <a
-                      href="#faq"
-                      className="block px-3 py-2 luxury-nav-link"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      الأسئلة الشائعة
-                    </a>
-                    <a
-                      href="#contact"
-                      className="block px-3 py-2 luxury-nav-link"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      تواصل معنا
-                    </a>
-                  </div>
-                  <DrawerFooter>
-                    <DrawerClose asChild>
+                    </SheetTitle>
+                    <SheetDescription>اختر وجهتك</SheetDescription>
+                  </SheetHeader>
+                  <ScrollArea className="h-[calc(100vh-8rem)]">
+                    <div className="px-4 py-2 space-y-3">
+                      <a
+                        href="#home"
+                        className="block px-3 py-2 luxury-nav-link"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        الرئيسية
+                      </a>
+                      <a
+                        href="#products"
+                        className="block px-3 py-2 luxury-nav-link"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        المنتجات
+                      </a>
+                      <a
+                        href="#categories"
+                        className="block px-3 py-2 luxury-nav-link"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        الفئات
+                      </a>
+                      <a
+                        href="#events"
+                        className="block px-3 py-2 luxury-nav-link"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        الفعاليات
+                      </a>
+                      <a
+                        href="#sales-stats"
+                        className="block px-3 py-2 luxury-nav-link"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        إحصائيات المبيعات
+                      </a>
+                      <a
+                        href="#about"
+                        className="block px-3 py-2 luxury-nav-link"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        من نحن
+                      </a>
+                      <a
+                        href="#faq"
+                        className="block px-3 py-2 luxury-nav-link"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        الأسئلة الشائعة
+                      </a>
+                      <a
+                        href="#contact"
+                        className="block px-3 py-2 luxury-nav-link"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        تواصل معنا
+                      </a>
+                    </div>
+                  </ScrollArea>
+                  <SheetFooter>
+                    <SheetClose asChild>
                       <Button className="luxury-btn-outline">إغلاق</Button>
-                    </DrawerClose>
-                  </DrawerFooter>
-                </DrawerContent>
-              </Drawer>
+                    </SheetClose>
+                  </SheetFooter>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Search Command Dialog */}
       <CommandDialog
         open={isSearchOpen}
         onOpenChange={setIsSearchOpen}
         title="البحث في LUXE FASHION"
         description="ابحث عن المنتجات أو الفئات..."
-        className="luxury-command-dialog"
+        className="lux sixy-command-dialog"
       >
         <CommandInput
           placeholder="ابحث عن منتج أو فئة..."
@@ -595,7 +733,6 @@ function App() {
         </CommandList>
       </CommandDialog>
 
-      {/* Hero Section */}
       <section id="home" className="relative h-screen overflow-hidden">
         {heroSlides.map((slide, index) => (
           <div
@@ -629,8 +766,6 @@ function App() {
             </div>
           </div>
         ))}
-
-        {/* Slide indicators */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
           {heroSlides.map((_, index) => (
             <button
@@ -644,7 +779,6 @@ function App() {
         </div>
       </section>
 
-      {/* Events Section */}
       <section id="events" className="py-20 bg-secondary/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb className="mb-6 luxury-shadow">
@@ -715,7 +849,6 @@ function App() {
         </div>
       </section>
 
-      {/* Sales Statistics Section */}
       <section id="sales-stats" className="py-20 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb className="mb-6 luxury-shadow">
@@ -757,7 +890,6 @@ function App() {
         </div>
       </section>
 
-      {/* Categories Section */}
       <section id="categories" className="py-20 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb className="mb-6 luxury-shadow">
@@ -779,7 +911,6 @@ function App() {
               اكتشف مجموعتنا المتنوعة من الملابس والإكسسوارات الفاخرة
             </p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {categories.map((category, index) => (
               <Card key={index} className="luxury-card group cursor-pointer overflow-hidden">
@@ -801,7 +932,6 @@ function App() {
         </div>
       </section>
 
-      {/* Featured Products Section */}
       <section id="products" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb className="mb-6 luxury-shadow">
@@ -823,192 +953,253 @@ function App() {
               تشكيلة مختارة بعناية من أفضل القطع في مجموعتنا
             </p>
           </div>
-
-          {/* Filters */}
-          <div className="luxury-checkbox-container">
-            <div className="luxury-checkbox">
-              <Checkbox
-                id="new"
-                checked={filters.new}
-                onCheckedChange={() => handleFilterChange('new')}
-              />
-              <label htmlFor="new">جديد</label>
+          <ScrollArea className="h-[600px] rounded-md border p-4 luxury-shadow">
+            <div className="luxury-checkbox-container mb-8">
+              <div className="luxury-checkbox">
+                <Checkbox
+                  id="new"
+                  checked={filters.new}
+                  onCheckedChange={() => handleFilterChange('new')}
+                />
+                <label htmlFor="new">جديد</label>
+              </div>
+              <div className="luxury-checkbox">
+                <Checkbox
+                  id="sale"
+                  checked={filters.sale}
+                  onCheckedChange={() => handleFilterChange('sale')}
+                />
+                <label htmlFor="sale">تخفيض</label>
+              </div>
+              <RadioGroup
+                defaultValue="all"
+                onValueChange={(value) => {
+                  setFilters({
+                    new: value === 'new',
+                    sale: value === 'sale',
+                  })
+                  setCurrentPage(1)
+                }}
+                className="flex space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="all" id="all" />
+                  <Label htmlFor="all">الكل</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="new" id="new-radio" />
+                  <Label htmlFor="new-radio">جديد</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="sale" id="sale-radio" />
+                  <Label htmlFor="sale-radio">تخفيض</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="luxury-checkbox">
-              <Checkbox
-                id="sale"
-                checked={filters.sale}
-                onCheckedChange={() => handleFilterChange('sale')}
-              />
-              <label htmlFor="sale">تخفيض</label>
-            </div>
-          </div>
-
-          <Carousel className="luxury-carousel">
-            <CarouselContent>
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
-                  <CarouselItem key={product.id} className="luxury-carousel-item">
-                    <ContextMenu>
-                      <ContextMenuTrigger>
-                        <Card className="luxury-product-card luxury-card overflow-hidden">
-                          <div className="relative">
-                            <HoverCard>
-                              <HoverCardTrigger asChild>
-                                <AspectRatio ratio={4 / 3}>
-                                  <img
-                                    src={product.image}
-                                    alt={product.name}
-                                    className="luxury-product-image object-cover w-full h-full"
-                                  />
-                                </AspectRatio>
-                              </HoverCardTrigger>
-                              <HoverCardContent className="luxury-hover-card">
-                                <h3 className="text-lg font-semibold luxury-font-heading mb-2">
-                                  {product.name}
-                                </h3>
-                                <p className="text-sm text-muted-foreground mb-3">
-                                  {product.description}
-                                </p>
-                                <div className="flex items-center mb-2">
-                                  <div className="flex items-center">
-                                    {[...Array(5)].map((_, i) => (
-                                      <Star
-                                        key={i}
-                                        className={`h-4 w-4 ${
-                                          i < Math.floor(product.rating)
-                                            ? 'text-accent fill-current'
-                                            : 'text-muted-foreground'
-                                        }`}
-                                      />
-                                    ))}
-                                  </div>
-                                  <span className="text-sm text-muted-foreground mr-2">
-                                    ({product.reviews})
-                                  </span>
+            {currentProducts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {currentProducts.map((product) => (
+                  <ContextMenu key={product.id}>
+                    <ContextMenuTrigger>
+                      <Card className="luxury-product-card luxury-card overflow-hidden">
+                        <div className="relative">
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <AspectRatio ratio={4 / 3}>
+                                <img
+                                  src={product.image}
+                                  alt={product.name}
+                                  className="luxury-product-image object-cover w-full h-full"
+                                />
+                              </AspectRatio>
+                            </PopoverTrigger>
+                            <PopoverContent className="luxury-hover-card">
+                              <h3 className="text-lg font-semibold luxury-font-heading mb-2">
+                                {product.name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground mb-3">
+                                {product.description}
+                              </p>
+                              <div className="flex items-center mb-2">
+                                <div className="flex items-center">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`h-4 w-4 ${
+                                        i < Math.floor(product.rating)
+                                          ? 'text-accent fill-current'
+                                          : 'text-muted-foreground'
+                                      }`}
+                                    />
+                                  ))}
                                 </div>
-                              </HoverCardContent>
-                            </HoverCard>
-                            <div className="luxury-product-overlay">
-                              <Button className="luxury-btn-gold">
-                                عرض التفاصيل
-                              </Button>
-                            </div>
-                            {product.isNew && (
-                              <a href="#products">
-                                <Badge
-                                  variant="secondary"
-                                  className="absolute top-4 left-4 luxury-shadow"
-                                >
-                                  جديد
-                                </Badge>
-                              </a>
-                            )}
-                            {product.isSale && (
-                              <a href="#products">
-                                <Badge
-                                  variant="destructive"
-                                  className="absolute top-4 right-4 luxury-shadow"
-                                >
-                                  تخفيض
-                                </Badge>
-                              </a>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="absolute top-4 right-4 bg-white/80 hover:bg-white"
-                              onClick={() => toggleFavorite(product.id)}
-                            >
-                              <Heart
-                                className={`h-4 w-4 ${
-                                  favorites.includes(product.id)
-                                    ? 'fill-current text-accent'
-                                    : 'text-muted-foreground'
-                                }`}
-                              />
+                                <span className="text-sm text-muted-foreground mr-2">
+                                  ({product.reviews})
+                                </span>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                          <div className="luxury-product-overlay">
+                            <Button className="luxury-btn-gold">
+                              عرض التفاصيل
                             </Button>
                           </div>
-                          <CardContent className="p-6">
-                            <h3 className="text-lg font-semibold luxury-font-heading mb-2">
-                              {product.name}
-                            </h3>
-                            <div className="flex items-center mb-2">
-                              <div className="flex items-center">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-4 w-4 ${
-                                      i < Math.floor(product.rating)
-                                        ? 'text-accent fill-current'
-                                        : 'text-muted-foreground'
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-sm text-muted-foreground mr-2">
-                                ({product.reviews})
+                          {product.isNew && (
+                            <a href="#products">
+                              <Badge
+                                variant="secondary"
+                                className="absolute top-4 left-4 luxury-shadow"
+                              >
+                                جديد
+                              </Badge>
+                            </a>
+                          )}
+                          {product.isSale && (
+                            <a href="#products">
+                              <Badge
+                                variant="destructive"
+                                className="absolute top-4 right-4 luxury-shadow"
+                              >
+                                تخفيض
+                              </Badge>
+                            </a>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-4 right-4 bg-white/80 hover:bg-white"
+                            onClick={() => toggleFavorite(product.id)}
+                          >
+                            <Heart
+                              className={`h-4 w-4 ${
+                                favorites.includes(product.id)
+                                  ? 'fill-current text-accent'
+                                  : 'text-muted-foreground'
+                              }`}
+                            />
+                          </Button>
+                        </div>
+                        <CardContent className="p-6">
+                          <h3 className="text-lg font-semibold luxury-font-heading mb-2">
+                            {product.name}
+                          </h3>
+                          <div className="flex items-center mb-2">
+                            <div className="flex items-center">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${
+                                    i < Math.floor(product.rating)
+                                      ? 'text-accent fill-current'
+                                      : 'text-muted-foreground'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-muted-foreground mr-2">
+                              ({product.reviews})
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xl font-bold text-accent">
+                                {product.price}
                               </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <span className="text-xl font-bold text-accent">
-                                  {product.price}
+                              {product.originalPrice && (
+                                <span className="text-sm text-muted-foreground line-through">
+                                  {product.originalPrice}
                                 </span>
-                                {product.originalPrice && (
-                                  <span className="text-sm text-muted-foreground line-through">
-                                    {product.originalPrice}
-                                  </span>
-                                )}
-                              </div>
-                              <Button size="sm" className="luxury-btn">
-                                أضف للسلة
-                              </Button>
+                              )}
                             </div>
-                          </CardContent>
-                        </Card>
-                      </ContextMenuTrigger>
-                      <ContextMenuContent className="luxury-context-menu">
-                        <ContextMenuItem
-                          className="luxury-context-menu-item"
-                          onSelect={() => toggleFavorite(product.id)}
-                        >
-                          {favorites.includes(product.id)
-                            ? 'إزالة من المفضلة'
-                            : 'إضافة إلى المفضلة'}
-                          <ContextMenuShortcut>
-                            <Heart className="h-4 w-4" />
-                          </ContextMenuShortcut>
-                        </ContextMenuItem>
-                        <ContextMenuItem
-                          className="luxury-context-menu-item"
-                          onSelect={() => alert(`تمت مشاركة ${product.name}`)}
-                        >
-                          مشاركة المنتج
-                          <ContextMenuShortcut>مشاركة</ContextMenuShortcut>
-                        </ContextMenuItem>
-                        <ContextMenuSeparator />
-                        <ContextMenuItem
-                          className="luxury-context-menu-item"
-                          onSelect={() => (window.location.hash = '#products')}
-                        >
-                          عرض التفاصيل
-                          <ContextMenuShortcut>عرض</ContextMenuShortcut>
-                        </ContextMenuItem>
-                      </ContextMenuContent>
-                    </ContextMenu>
-                  </CarouselItem>
-                ))
-              ) : (
-                <div className="text-center text-muted-foreground py-8">
-                  لا توجد منتجات تطابق الفلاتر المحددة.
-                </div>
-              )}
-            </CarouselContent>
-            <CarouselPrevious className="luxury-btn-outline" />
-            <CarouselNext className="luxury-btn-outline" />
-          </Carousel>
-
+                            <Button size="sm" className="luxury-btn">
+                              أضف للسلة
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="luxury-context-menu">
+                      <ContextMenuItem
+                        className="luxury-context-menu-item"
+                        onSelect={() => toggleFavorite(product.id)}
+                      >
+                        {favorites.includes(product.id)
+                          ? 'إزالة من المفضلة'
+                          : 'إضافة إلى المفضلة'}
+                        <ContextMenuShortcut>
+                          <Heart className="h-4 w-4" />
+                        </ContextMenuShortcut>
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        className="luxury-context-menu-item"
+                        onSelect={() => alert(`تمت مشاركة ${product.name}`)}
+                      >
+                        مشاركة المنتج
+                        <ContextMenuShortcut>مشاركة</ContextMenuShortcut>
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem
+                        className="luxury-context-menu-item"
+                        onSelect={() => (window.location.hash = '#products')}
+                      >
+                        عرض التفاصيل
+                        <ContextMenuShortcut>عرض</ContextMenuShortcut>
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                لا توجد منتجات تطابق الفلاتر المحددة.
+              </div>
+            )}
+          </ScrollArea>
+          {totalPages > 1 && (
+            <Pagination className="luxury-pagination mt-12">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#products"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      if (currentPage > 1) setCurrentPage(currentPage - 1)
+                    }}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+                {getPageNumbers().map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#products"
+                      isActive={currentPage === page}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setCurrentPage(page)
+                      }}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                {totalPages > 5 && currentPage < totalPages - 2 && (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#products"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      if (currentPage < totalPages) setCurrentPage(currentPage + 1)
+                    }}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
           <div className="text-center mt-12">
             <Button className="luxury-btn-outline text-lg px-12 py-6">
               عرض جميع المنتجات
@@ -1018,7 +1209,6 @@ function App() {
         </div>
       </section>
 
-      {/* About Section */}
       <section id="about" className="py-20 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb className="mb-6 luxury-shadow">
@@ -1059,7 +1249,6 @@ function App() {
                   <div className="text-sm text-muted-foreground">سنوات خبرة</div>
                 </div>
               </div>
-              {/* Our Values */}
               <h3 className="text-2xl font-bold luxury-font-heading mb-6">
                 قيمنا
               </h3>
@@ -1075,7 +1264,7 @@ function App() {
                 </Collapsible>
               ))}
               <p className="text-sm text-muted-foreground italic mt-8">
-                تم تطوير هذا الموقع بواسطة فريق Ababil المتخصص في التطوير والتصميم
+                تم تطوير هذا الموقع بواسطة فريق Bin Tuhami المتخصص في التطوير والتصميم
               </p>
             </div>
             <div className="relative">
@@ -1090,7 +1279,6 @@ function App() {
         </div>
       </section>
 
-      {/* FAQ Section */}
       <section id="faq" className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb className="mb-6 luxury-shadow">
@@ -1127,7 +1315,6 @@ function App() {
         </div>
       </section>
 
-      {/* Newsletter Section */}
       <section className="py-20 luxury-gradient">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-6 text-white">
@@ -1136,6 +1323,7 @@ function App() {
           <p className="text-xl text-white/90 mb-8">
             كن أول من يعلم بأحدث المنتجات والعروض الحصرية
           </p>
+          <Progress value={isSubscribed ? 100 : 0} className="w-1/2 mx-auto mb-6" />
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -1153,9 +1341,10 @@ function App() {
                 }}
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>البريد الإلكتروني</FormLabel>
+                    <Label htmlFor="email" className="luxury-form-label">البريد الإلكتروني</Label>
                     <FormControl>
-                      <input
+                      <Input
+                        id="email"
                         type="email"
                         placeholder="أدخل بريدك الإلكتروني"
                         className="luxury-form-input"
@@ -1198,10 +1387,12 @@ function App() {
                   </DialogHeader>
                   {otpStep && (
                     <div className="mt-4">
+                      <Progress value={(otp.length / 6) * 100} className="mb-4" />
                       <FormItem>
-                        <FormLabel>رمز OTP</FormLabel>
+                        <Label htmlFor="otp" className="luxury-otp-label">رمز OTP</Label>
                         <FormControl>
                           <InputOTP
+                            id="otp"
                             maxLength={6}
                             value={otp}
                             onChange={(value) => setOtp(value)}
@@ -1266,11 +1457,9 @@ function App() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer id="contact" className="luxury-footer py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Company Info */}
             <div>
               <h3 className="text-2xl font-bold luxury-font-heading mb-6">
                 LUXE FASHION
@@ -1291,8 +1480,6 @@ function App() {
                 </Button>
               </div>
             </div>
-
-            {/* Quick Links */}
             <div>
               <h4 className="text-lg font-semibold mb-6">روابط سريعة</h4>
               <ul className="space-y-3">
@@ -1305,8 +1492,6 @@ function App() {
                 <li><a href="#faq" className="text-primary-foreground/80 hover:text-accent transition-colors">الأسئلة الشائعة</a></li>
               </ul>
             </div>
-
-            {/* Customer Service */}
             <div>
               <h4 className="text-lg font-semibold mb-6">خدمة العملاء</h4>
               <ul className="space-y-3">
@@ -1316,8 +1501,6 @@ function App() {
                 <li><a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">تتبع الطلب</a></li>
               </ul>
             </div>
-
-            {/* Contact Info */}
             <div>
               <h4 className="text-lg font-semibold mb-6">تواصل معنا</h4>
               <div className="space-y-4">
@@ -1336,14 +1519,13 @@ function App() {
               </div>
             </div>
           </div>
-
           <div className="border-t border-primary-foreground/20 mt-12 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-primary-foreground/60 text-sm">
                 © 2024 LUXE FASHION. جميع الحقوق محفوظة.
               </p>
               <p className="text-primary-foreground/60 text-sm mt-4 md:mt-0">
-                تم التطوير بواسطة فريق Ababil
+                تم التطوير بواسطة فريق Bin Tuhami
               </p>
             </div>
           </div>
