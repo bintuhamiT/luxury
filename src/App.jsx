@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback} from 'react'
 import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button.jsx'
@@ -152,6 +152,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1)
   const [sortOption, setSortOption] = useState('default')
   const [isLoading, setIsLoading] = useState(true)
+  const [productsPerPage, setProductsPerPage] = useState(3)
 
   // Load cart from Local Storage on mount
   useEffect(() => {
@@ -460,7 +461,6 @@ function App() {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage
   const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct)
 
-  const [productsPerPage, setProductsPerPage] = useState(3)
 
   const handlePageChange = useCallback((page) => {
     setCurrentPage(page)
