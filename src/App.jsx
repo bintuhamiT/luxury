@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent } from '@/components/ui/card.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
@@ -16,7 +17,12 @@ import {
   Twitter,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Trash2,
+  Plus,
+  Minus,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion.jsx'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert.jsx'
@@ -30,7 +36,6 @@ import {
   BreadcrumbPage, 
   BreadcrumbSeparator 
 } from '@/components/ui/breadcrumb.jsx'
-import { Calendar } from '@/components/ui/calendar.jsx'
 import { 
   ChartContainer, 
   ChartTooltip, 
@@ -38,7 +43,6 @@ import {
   ChartLegend, 
   ChartLegendContent 
 } from '@/components/ui/chart.jsx'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { Checkbox } from '@/components/ui/checkbox.jsx'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible.jsx'
 import { 
@@ -79,14 +83,6 @@ import {
   DrawerClose
 } from '@/components/ui/drawer.jsx'
 import {
-  Form,
-  FormField,
-  FormItem,
-  FormControl,
-  FormDescription,
-  FormMessage
-} from '@/components/ui/form.jsx'
-import {
   Popover,
   PopoverTrigger,
   PopoverContent
@@ -119,14 +115,21 @@ import {
   PaginationNext,
   PaginationEllipsis
 } from '@/components/ui/pagination.jsx'
-import { Progress } from '@/components/ui/progress.jsx'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group.jsx'
 import { ScrollArea } from '@/components/ui/scroll-area.jsx'
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from '@/components/ui/sheet.jsx'
-
+import { useToast } from '@/components/ui/use-toast'
+import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select.jsx'
 import './App.css'
 
 function App() {
+  const { toast } = useToast()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -134,8 +137,12 @@ function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [favorites, setFavorites] = useState([])
+  const [cart, setCart] = useState([])
+  const [isCartOpen, setIsCartOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [isProductDialogOpen, setIsProductDialogOpen] = useState(false)
   const [user, setUser] = useState({
-    name: "أحمد",
+    name: "Ababil",
     image: "/favicon.ico"
   })
   const [filters, setFilters] = useState({
@@ -143,18 +150,23 @@ function App() {
     sale: false,
   })
   const [currentPage, setCurrentPage] = useState(1)
-  const productsPerPage = 3
+  const [sortOption, setSortOption] = useState('default')
+  const [isLoading, setIsLoading] = useState(true)
 
-  const [otpStep, setOtpStep] = useState(false)
-  const [otp, setOtp] = useState('')
-  const [otpError, setOtpError] = useState('')
+  // Load cart from Local Storage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem('cart')
+    if (savedCart) {
+      setCart(JSON.parse(savedCart))
+    }
+    // Simulate loading for realism
+    setTimeout(() => setIsLoading(false), 1000)
+  }, [])
 
-  const form = useForm({
-    defaultValues: {
-      email: ""
-    },
-    mode: "onSubmit"
-  })
+  // Save cart to Local Storage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart))
+  }, [cart])
 
   const heroSlides = [
     {
@@ -188,7 +200,9 @@ function App() {
       rating: 4.8,
       reviews: 124,
       isNew: true,
-      isSale: true
+      isSale: true,
+      sizes: ['S', 'M', 'L'],
+      colors: ['أسود', 'أحمر', 'ذهبي']
     },
     {
       id: 2,
@@ -200,7 +214,9 @@ function App() {
       rating: 4.9,
       reviews: 89,
       isNew: false,
-      isSale: false
+      isSale: false,
+      sizes: ['M', 'L', 'XL'],
+      colors: ['أزرق داكن', 'رمادي']
     },
     {
       id: 3,
@@ -212,7 +228,9 @@ function App() {
       rating: 4.7,
       reviews: 156,
       isNew: true,
-      isSale: true
+      isSale: true,
+      sizes: ['One Size'],
+      colors: ['أسود', 'بيج']
     },
     {
       id: 4,
@@ -224,7 +242,9 @@ function App() {
       rating: 4.6,
       reviews: 73,
       isNew: false,
-      isSale: false
+      isSale: false,
+      sizes: ['M', 'L', 'XL'],
+      colors: ['أسود', 'كحلي']
     },
     {
       id: 5,
@@ -236,7 +256,9 @@ function App() {
       rating: 4.5,
       reviews: 92,
       isNew: true,
-      isSale: true
+      isSale: true,
+      sizes: ['S', 'M', 'L'],
+      colors: ['أبيض', 'أزرق']
     },
     {
       id: 6,
@@ -248,7 +270,9 @@ function App() {
       rating: 4.8,
       reviews: 201,
       isNew: false,
-      isSale: false
+      isSale: false,
+      sizes: ['40', '41', '42', '43'],
+      colors: ['أبيض', 'أسود']
     }
   ]
 
@@ -288,6 +312,19 @@ function App() {
     })),
   ]
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const nav = document.querySelector('.luxury-nav');
+      if (window.scrollY > 50) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
   const filteredSearchResults = searchItems.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
@@ -312,31 +349,11 @@ function App() {
   ]
 
   const values = [
-    {
-      title: "الجودة",
-      description: "نلتزم بتقديم منتجات عالية الجودة مصنوعة من أفضل المواد لضمان المتانة والراحة."
-    },
-    {
-      title: "الابتكار",
-      description: "نبتكر تصاميم فريدة تجمع بين الأناقة العصرية واللمسة التقليدية لتلبية أذواق عملائنا."
-    },
-    {
-      title: "الاستدامة",
-      description: "نعمل على تقليل بصمتنا البيئية من خلال استخدام مواد مستدامة وممارسات إنتاج صديقة للبيئة."
-    },
-    {
-      title: "الأناقة",
-      description: "نؤمن بأن الأناقة هي تعبير عن الذات، ونسعى لتقديم قطع تعكس ذوقك الرفيع."
-    }
+    { title: "الجودة", description: "نلتزم بتقديم منتجات عالية الجودة مصنوعة من أفضل المواد لضمان المتانة والراحة." },
+    { title: "الابتكار", description: "نبتكر تصاميم فريدة تجمع بين الأناقة العصرية واللمسة التقليدية لتلبية أذواق عملائنا." },
+    { title: "الاستدامة", description: "نعمل على تقليل بصمتنا البيئية من خلال استخدام مواد مستدامة وممارسات إنتاج صديقة للبيئة." },
+    { title: "الأناقة", description: "نؤمن بأن الأناقة هي تعبير عن الذات، ونسعى لتقديم قطع تعكس ذوقك الرفيع." }
   ]
-
-  const handleFilterChange = (filterKey) => {
-    setFilters((prev) => ({
-      ...prev,
-      [filterKey]: !prev[filterKey],
-    }))
-    setCurrentPage(1) // Reset to first page when filters change
-  }
 
   const toggleFavorite = (productId) => {
     setFavorites((prev) =>
@@ -344,23 +361,77 @@ function App() {
         ? prev.filter((id) => id !== productId)
         : [...prev, productId]
     )
+    toast({
+      title: favorites.includes(productId) ? "تمت الإزالة من المفضلة" : "تمت الإضافة إلى المفضلة",
+      description: `تم تحديث قائمة المفضلة.`,
+    })
   }
 
-  const onSubmit = (data) => {
-    setIsDialogOpen(true)
+  const addToCart = (product, size = null, color = null) => {
+    setCart((prev) => {
+      const existingItem = prev.find((item) => item.id === product.id && item.size === size && item.color === color)
+      if (existingItem) {
+        return prev.map((item) =>
+          item.id === product.id && item.size === size && item.color === color
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      }
+      return [...prev, { ...product, quantity: 1, size, color }]
+    })
+    toast({
+      title: "تمت الإضافة إلى السلة",
+      description: `${product.name} تمت إضافته إلى سلة التسوق.`,
+    })
   }
 
-  const handleOTPSubmit = () => {
-    if (otp === '123456') {
-      setIsSubscribed(true)
-      setIsDialogOpen(false)
-      setOtpStep(false)
-      setOtp('')
-      setOtpError('')
-      form.reset()
-    } else {
-      setOtpError('رمز OTP غير صحيح. حاول مرة أخرى.')
+  const updateCartQuantity = (productId, newQuantity) => {
+    if (newQuantity < 1) {
+      removeFromCart(productId)
+      return
     }
+    setCart((prev) =>
+      prev.map((item) =>
+        item.id === productId ? { ...item, quantity: newQuantity } : item
+      )
+    )
+  }
+
+  const removeFromCart = (productId) => {
+    setCart((prev) => prev.filter((item) => item.id !== productId))
+    toast({
+      title: "تمت الإزالة من السلة",
+      description: "تم إزالة المنتج من سلة التسوق.",
+    })
+  }
+
+  const clearCart = () => {
+    setCart([])
+    localStorage.removeItem('cart')
+    toast({
+      title: "تم تفريغ السلة",
+      description: "تم إزالة جميع المنتجات من سلة التسوق.",
+    })
+  }
+
+  const calculateTotal = () => {
+    return cart.reduce((total, item) => {
+      const price = parseFloat(item.price.replace(' ريال', '').replace(',', ''))
+      return total + price * item.quantity
+    }, 0).toFixed(2)
+  }
+
+  const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0)
+
+  const viewProductDetails = (product) => {
+    setSelectedProduct(product)
+    setIsProductDialogOpen(true)
+  }
+
+  const viewAllProducts = () => {
+    setFilters({ new: false, sale: false })
+    setSortOption('default')
+    setCurrentPage(1)
   }
 
   const filteredProducts = featuredProducts.filter((product) => {
@@ -371,13 +442,40 @@ function App() {
     return false
   })
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortOption === 'price-low') {
+      return parseFloat(a.price.replace(' ريال', '').replace(',', '')) - parseFloat(b.price.replace(' ريال', '').replace(',', ''))
+    }
+    if (sortOption === 'price-high') {
+      return parseFloat(b.price.replace(' ريال', '').replace(',', '')) - parseFloat(a.price.replace(' ريال', '').replace(',', ''))
+    }
+    if (sortOption === 'rating') {
+      return b.rating - a.rating
+    }
+    return 0
+  })
+
+  const totalPages = Math.ceil(sortedProducts.length / productsPerPage)
   const indexOfLastProduct = currentPage * productsPerPage
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
+  const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct)
 
-  // Generate page numbers to display
+  const [productsPerPage, setProductsPerPage] = useState(3)
+
+  const handlePageChange = useCallback((page) => {
+    setCurrentPage(page)
+    toast({
+      title: "تم تغيير الصفحة",
+      description: `أنت الآن في الصفحة ${page}`,
+      duration: 2000,
+    })
+  }, [toast])
+
+  const handleProductsPerPageChange = useCallback((value) => {
+    setProductsPerPage(Number(value))
+    setCurrentPage(1) // إعادة تعيين الصفحة إلى الأولى عند تغيير عدد المنتجات
+  }, [])
+
   const getPageNumbers = () => {
     const pageNumbers = []
     const maxPagesToShow = 5
@@ -411,167 +509,457 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background luxury-font-body">
-      <nav className="luxury-nav bg-background/95 backdrop-blur-md sticky top-0 z-50 luxury-shadow luxury-border-gold">
+      <nav className="luxury-nav sticky top-0 z-50 animate-nav-slide-in">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            {/* Logo */}
+          <div className="flex justify-between items-center h-16 sm:h-20">
             <div className="flex-shrink-0">
-              <a href="#home" className="flex items-center space-x-2">
-                <h1 className="text-3xl md:text-4xl font-bold luxury-font-heading luxury-text-gradient fade-in">
-                  LUXE FASHION
-                </h1>
-                <span className="text-accent text-sm luxury-font-body opacity-80">حصري</span>
-              </a>
+              <h1 className="text-2xl sm:text-3xl font-bold luxury-font-heading luxury-text-gradient">
+                LUXE FASHION
+              </h1>
             </div>
-
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-2">
+            <div className="hidden md:flex items-center space-x-6">
               <Menubar className="luxury-menubar bg-transparent border-none">
-                {[
-                  { value: "home", label: "الرئيسية", href: "#home" },
-                  {
-                    value: "products",
-                    label: "المنتجات",
-                    href: "#products",
-                    subMenu: [
-                      { label: "جميع المنتجات", href: "#products" },
-                      { label: "ملابس نسائية", href: "#products" },
-                      { label: "ملابس رجالية", href: "#products" },
-                      { label: "إكسسوارات", href: "#products" },
-                      { label: "أحذية", href: "#products" },
-                    ],
-                  },
-                  {
-                    value: "categories",
-                    label: "الفئات",
-                    href: "#categories",
-                    subMenu: [
-                      { label: "جميع الفئات", href: "#categories" },
-                      { label: "ملابس نسائية", href: "#categories" },
-                      { label: "ملابس رجالية", href: "#categories" },
-                      { label: "إكسسوارات", href: "#categories" },
-                      { label: "أحذية", href: "#categories" },
-                    ],
-                  },
-                  { value: "about", label: "من نحن", href: "#about" },
-                  { value: "faq", label: "الأسئلة الشائعة", href: "#faq" },
-                  { value: "contact", label: "تواصل معنا", href: "#contact" },
-                ].map((item) => (
-                  <MenubarMenu key={item.value} value={item.value}>
-                    <MenubarTrigger className="luxury-nav-link luxury-font-body text-base px-4 py-2 rounded-full hover:bg-accent/10 hover:text-accent smooth-transition">
-                      {item.label}
-                    </MenubarTrigger>
-                    <MenubarContent className="luxury-context-menu bg-background/95 backdrop-blur-sm luxury-shadow luxury-border-gold rounded-xl mt-2">
-                      <MenubarItem className="luxury-context-menu-item luxury-font-body" asChild>
-                        <a href={item.href} className="w-full">
-                          {item.label === "المنتجات" || item.label === "الفئات" ? `جميع ${item.label}` : item.label}
-                        </a>
-                      </MenubarItem>
-                      {item.subMenu && (
-                        <>
-                          <MenubarSeparator className="bg-border/50" />
-                          <MenubarSub>
-                            <MenubarSubTrigger className="luxury-context-menu-item luxury-font-body">
-                              تصفح حسب الفئة
-                            </MenubarSubTrigger>
-                            <MenubarSubContent className="luxury-context-menu bg-background/95 backdrop-blur-sm luxury-shadow luxury-border-gold rounded-xl">
-                              {item.subMenu.slice(1).map((subItem, index) => (
-                                <MenubarItem key={index} className="luxury-context-menu-item luxury-font-body" asChild>
-                                  <a href={subItem.href} className="w-full">
-                                    {subItem.label}
-                                  </a>
-                                </MenubarItem>
-                              ))}
-                            </MenubarSubContent>
-                          </MenubarSub>
-                        </>
-                      )}
-                    </MenubarContent>
-                  </MenubarMenu>
-                ))}
+                <MenubarMenu value="home">
+                  <MenubarTrigger className="luxury-menubar-trigger">الرئيسية</MenubarTrigger>
+                  <MenubarContent className="luxury-menubar-content">
+                    <MenubarItem className="luxury-menubar-item">
+                      <a href="#home">الصفحة الرئيسية</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="shop">
+                  <MenubarTrigger className="luxury-menubar-trigger">التسوق</MenubarTrigger>
+                  <MenubarContent className="luxury-menubar-content">
+                    <MenubarItem className="luxury-menubar-item">
+                      <a href="#products">جميع المنتجات</a>
+                    </MenubarItem>
+                    <MenubarSeparator />
+                    <MenubarSub>
+                      <MenubarSubTrigger className="luxury-menubar-item">تصفح حسب الفئة</MenubarSubTrigger>
+                      <MenubarSubContent className="luxury-menubar-content">
+                        <MenubarItem className="luxury-menubar-item">
+                          <a href="#products">ملابس نسائية</a>
+                        </MenubarItem>
+                        <MenubarItem className="luxury-menubar-item">
+                          <a href="#products">ملابس رجالية</a>
+                        </MenubarItem>
+                        <MenubarItem className="luxury-menubar-item">
+                          <a href="#products">إكسسوارات</a>
+                        </MenubarItem>
+                        <MenubarItem className="luxury-menubar-item">
+                          <a href="#products">أحذية</a>
+                        </MenubarItem>
+                      </MenubarSubContent>
+                    </MenubarSub>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="about">
+                  <MenubarTrigger className="luxury-menubar-trigger">من نحن</MenubarTrigger>
+                  <MenubarContent className="luxury-menubar-content">
+                    <MenubarItem className="luxury-menubar-item">
+                      <a href="#about">قصة العلامة التجارية</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="faq">
+                  <MenubarTrigger className="luxury-menubar-trigger">الأسئلة الشائعة</MenubarTrigger>
+                  <MenubarContent className="luxury-menubar-content">
+                    <MenubarItem className="luxury-menubar-item">
+                      <a href="#faq">الأسئلة والإجابات</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+                <MenubarMenu value="contact">
+                  <MenubarTrigger className="luxury-menubar-trigger">تواصل معنا</MenubarTrigger>
+                  <MenubarContent className="luxury-menubar-content">
+                    <MenubarItem className="luxury-menubar-item">
+                      <a href="#contact">معلومات التواصل</a>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
               </Menubar>
             </div>
-
-            {/* Desktop Icons */}
-            <div className="hidden md:flex items-center space-x-3">
+            <div className="hidden md:flex items-center space-x-4">
               <Button
                 variant="ghost"
                 size="icon"
-                className="luxury-shadow rounded-full hover:bg-accent/20 hover:text-accent smooth-transition"
                 onClick={() => setIsSearchOpen(true)}
+                className="luxury-btn-icon touch-friendly"
+                aria-label="Search"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="luxury-btn-icon touch-friendly"
+                aria-label="Favorites"
+              >
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Avatar className="luxury-shadow cursor-pointer">
+                    <AvatarImage src={user.image} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                </PopoverTrigger>
+                <PopoverContent className="luxury-menubar-content w-48">
+                  <div className="flex flex-col space-y-2">
+                    <Button variant="ghost" className="luxury-menubar-item justify-start">
+                      الحساب
+                    </Button>
+                    <Button variant="ghost" className="luxury-menubar-item justify-start">
+                      الإعدادات
+                    </Button>
+                    <Button variant="ghost" className="luxury-menubar-item justify-start">
+                      تسجيل الخروج
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative luxury-btn-icon touch-friendly" aria-label="Cart">
+                    <ShoppingBag className="h-5 w-5" />
+                    {totalCartItems > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs animate-pulse-cart">
+                        {totalCartItems}
+                      </Badge>
+                    )}
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="luxury-drawer">
+                  <DrawerHeader>
+                    <DrawerTitle className="luxury-font-heading text-xl">سلة التسوق</DrawerTitle>
+                    <DrawerDescription>إدارة مشترياتك</DrawerDescription>
+                  </DrawerHeader>
+                  <ScrollArea className="h-[50vh] px-4">
+                    {cart.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        سلة التسوق فارغة
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {cart.map((item) => (
+                          <div key={`${item.id}-${item.size}-${item.color}`} className="flex items-center space-x-4 border-b pb-4">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-16 h-16 object-cover rounded-md luxury-shadow"
+                            />
+                            <div className="flex-1">
+                              <h3 className="text-sm font-semibold">{item.name}</h3>
+                              <p className="text-sm text-muted-foreground">{item.price}</p>
+                              {item.size && <p className="text-sm text-muted-foreground">المقاس: {item.size}</p>}
+                              {item.color && <p className="text-sm text-muted-foreground">اللون: {item.color}</p>}
+                              <div className="flex items-center space-x-2 mt-1">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
+                                  className="h-8 w-8 luxury-btn-icon touch-friendly"
+                                >
+                                  <Minus className="h-4 w-4" />
+                                </Button>
+                                <span className="text-sm">{item.quantity}</span>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                                  className="h-8 w-8 luxury-btn-icon touch-friendly"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeFromCart(item.id)}
+                              className="luxury-btn-icon touch-friendly"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </ScrollArea>
+                  {cart.length > 0 && (
+                    <div className="px-4 py-4 border-t">
+                      <div className="flex justify-between text-lg font-semibold">
+                        <span>الإجمالي:</span>
+                        <span>{calculateTotal()} ريال</span>
+                      </div>
+                      <div className="flex space-x-2 mt-4">
+                        <Button
+                          className="luxury-btn-outline flex-1 touch-friendly"
+                          onClick={clearCart}
+                        >
+                          تفريغ السلة
+                        </Button>
+                        <Button
+                          className="luxury-btn-gold flex-1 touch-friendly"
+                          onClick={() => {
+                            toast({
+                              title: "جارٍ الدفع",
+                              description: "سيتم توجيهك إلى صفحة الدفع.",
+                            });
+                            setIsCartOpen(false);
+                          }}
+                        >
+                          الدفع الآن
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  <DrawerFooter>
+                    <DrawerClose asChild>
+                      <Button variant="outline" className="luxury-btn-outline touch-friendly">
+                        إغلاق
+                      </Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+            </div>
+            <div className="flex md:hidden items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSearchOpen(true)}
+                className="luxury-btn-icon touch-friendly"
+                aria-label="Search"
               >
                 <Search className="h-6 w-6" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="luxury-shadow rounded-full hover:bg-accent/20 hover:text-accent smooth-transition"
-              >
-                <Heart className="h-6 w-6" />
-              </Button>
-              <Avatar className="luxury-shadow luxury-border-gold">
-                <AvatarImage src={user.image} alt={user.name} />
-                <AvatarFallback className="luxury-font-body text-accent">
-                  {user.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="luxury-shadow rounded-full hover:bg-accent/20 hover:text-accent smooth-transition"
-              >
-                <ShoppingBag className="h-6 w-6" />
-              </Button>
-            </div>
-
-            {/* Mobile Menu Toggle */}
-            <div className="md:hidden">
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative luxury-btn-icon touch-friendly"
+                    aria-label="Cart"
+                  >
+                    <ShoppingBag className="h-6 w-6" />
+                    {totalCartItems > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs animate-pulse-cart">
+                        {totalCartItems}
+                      </Badge>
+                    )}
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="luxury-drawer">
+                  <DrawerHeader>
+                    <DrawerTitle className="luxury-font-heading text-xl">سلة التسوق</DrawerTitle>
+                    <DrawerDescription>إدارة مشترياتك</DrawerDescription>
+                  </DrawerHeader>
+                  <ScrollArea className="h-[50vh] px-4">
+                    {cart.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        سلة التسوق فارغة
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {cart.map((item) => (
+                          <div key={`${item.id}-${item.size}-${item.color}`} className="flex items-center space-x-4 border-b pb-4">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-16 h-16 object-cover rounded-md luxury-shadow"
+                            />
+                            <div className="flex-1">
+                              <h3 className="text-sm font-semibold">{item.name}</h3>
+                              <p className="text-sm text-muted-foreground">{item.price}</p>
+                              {item.size && <p className="text-sm text-muted-foreground">المقاس: {item.size}</p>}
+                              {item.color && <p className="text-sm text-muted-foreground">اللون: {item.color}</p>}
+                              <div className="flex items-center space-x-2 mt-1">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
+                                  className="h-8 w-8 luxury-btn-icon touch-friendly"
+                                >
+                                  <Minus className="h-4 w-4" />
+                                </Button>
+                                <span className="text-sm">{item.quantity}</span>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                                  className="h-8 w-8 luxury-btn-icon touch-friendly"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeFromCart(item.id)}
+                              className="luxury-btn-icon touch-friendly"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </ScrollArea>
+                  {cart.length > 0 && (
+                    <div className="px-4 py-4 border-t">
+                      <div className="flex justify-between text-lg font-semibold">
+                        <span>الإجمالي:</span>
+                        <span>{calculateTotal()} ريال</span>
+                      </div>
+                      <div className="flex space-x-2 mt-4">
+                        <Button
+                          className="luxury-btn-outline flex-1 touch-friendly"
+                          onClick={clearCart}
+                        >
+                          تفريغ السلة
+                        </Button>
+                        <Button
+                          className="luxury-btn-gold flex-1 touch-friendly"
+                          onClick={() => {
+                            toast({
+                              title: "جارٍ الدفع",
+                              description: "سيتم توجيهك إلى صفحة الدفع.",
+                            });
+                            setIsCartOpen(false);
+                          }}
+                        >
+                          الدفع الآن
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  <DrawerFooter>
+                    <DrawerClose asChild>
+                      <Button variant="outline" className="luxury-btn-outline touch-friendly">
+                        إغلاق
+                      </Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
               <Sheet>
                 <SheetTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="luxury-shadow rounded-full hover:bg-accent/20 hover:text-accent smooth-transition"
                     onClick={() => setIsMenuOpen(true)}
+                    className="luxury-btn-icon touch-friendly"
+                    aria-label="Menu"
                   >
-                    <Menu className="h-7 w-7" />
+                    <Menu className="h-6 w-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="luxury-drawer bg-background/95 backdrop-blur-sm luxury-shadow luxury-border-gold rounded-l-xl w-[280px] sm:w-[320px]">
-                  <SheetHeader>
+                <SheetContent side="right" className="luxury-sheet bg-background/95 backdrop-blur-xl">
+                  <SheetHeader className="relative">
                     <SheetTitle className="luxury-font-heading text-2xl luxury-text-gradient">
-                      القائمة الحصرية
+                      القائمة
                     </SheetTitle>
-                    <SheetDescription className="luxury-font-body text-muted-foreground">
-                      استكشف عالم الأناقة
-                    </SheetDescription>
+                    <SheetDescription>اختر وجهتك</SheetDescription>
+                    <SheetClose asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-2 left-2 luxury-btn-icon touch-friendly"
+                        aria-label="Close Menu"
+                      >
+                        <X className="h-6 w-6 animate-spin-on-hover" />
+                      </Button>
+                    </SheetClose>
                   </SheetHeader>
-                  <ScrollArea className="h-[calc(100vh-12rem)] py-4">
-                    <div className="space-y-4 px-4">
-                      {[
-                        { label: "الرئيسية", href: "#home" },
-                        { label: "المنتجات", href: "#products" },
-                        { label: "الفئات", href: "#categories" },
-                        { label: "من نحن", href: "#about" },
-                        { label: "الأسئلة الشائعة", href: "#faq" },
-                        { label: "تواصل معنا", href: "#contact" },
-                        { label: "عضوية حصرية", href: "#membership" },
-                      ].map((item, index) => (
-                        <a
-                          key={index}
-                          href={item.href}
-                          className="block px-4 py-3 luxury-nav-link luxury-font-body text-lg hover:bg-accent/10 hover:text-accent rounded-lg smooth-transition slide-in-right"
-                          style={{ animationDelay: `${index * 0.1}s` }}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {item.label}
-                        </a>
-                      ))}
+                  <ScrollArea className="h-[calc(100vh-10rem)] py-4">
+                    <div className="px-4 space-y-4">
+                      <div className="mb-6">
+                        <Input
+                          placeholder="ابحث عن منتج أو فئة..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="luxury-input w-full"
+                        />
+                      </div>
+                      <a
+                        href="#home"
+                        className="block px-4 py-3 luxury-nav-link text-lg font-semibold hover:bg-accent/10 rounded-md transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        الرئيسية
+                      </a>
+                      <a
+                        href="#products"
+                        className="block px-4 py-3 luxury-nav-link text-lg font-semibold hover:bg-accent/10 rounded-md transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        التسوق
+                      </a>
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="categories">
+                          <AccordionTrigger className="px-4 py-3 luxury-nav-link text-lg font-semibold hover:bg-accent/10 rounded-md">
+                            الفئات
+                          </AccordionTrigger>
+                          <AccordionContent className="pl-6 space-y-2">
+                            <a
+                              href="#products"
+                              className="block px-4 py-2 luxury-nav-link text-base hover:bg-accent/10 rounded-md transition-colors"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              ملابس نسائية
+                            </a>
+                            <a
+                              href="#products"
+                              className="block px-4 py-2 luxury-nav-link text-base hover:bg-accent/10 rounded-md transition-colors"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              ملابس رجالية
+                            </a>
+                            <a
+                              href="#products"
+                              className="block px-4 py-2 luxury-nav-link text-base hover:bg-accent/10 rounded-md transition-colors"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              إكسسوارات
+                            </a>
+                            <a
+                              href="#products"
+                              className="block px-4 py-2 luxury-nav-link text-base hover:bg-accent/10 rounded-md transition-colors"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              أحذية
+                            </a>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                      <a
+                        href="#about"
+                        className="block px-4 py-3 luxury-nav-link text-lg font-semibold hover:bg-accent/10 rounded-md transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        من نحن
+                      </a>
+                      <a
+                        href="#faq"
+                        className="block px-4 py-3 luxury-nav-link text-lg font-semibold hover:bg-accent/10 rounded-md transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        الأسئلة الشائعة
+                      </a>
+                      <a
+                        href="#contact"
+                        className="block px-4 py-3 luxury-nav-link text-lg font-semibold hover:bg-accent/10 rounded-md transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        تواصل معنا
+                      </a>
                     </div>
                   </ScrollArea>
-                  <SheetFooter>
+                  <SheetFooter className="mt-4">
                     <SheetClose asChild>
-                      <Button className="luxury-btn-gold w-full rounded-full text-lg">
+                      <Button className="luxury-btn-outline w-full touch-friendly text-lg">
                         إغلاق
                       </Button>
                     </SheetClose>
@@ -588,7 +976,7 @@ function App() {
         onOpenChange={setIsSearchOpen}
         title="البحث في LUXE FASHION"
         description="ابحث عن المنتجات أو الفئات..."
-        className="lux sixy-command-dialog"
+        className="luxury-command-dialog"
       >
         <CommandInput
           placeholder="ابحث عن منتج أو فئة..."
@@ -608,7 +996,7 @@ function App() {
                     setIsSearchOpen(false)
                     window.location.hash = item.link
                   }}
-                  className="luxury-command-item"
+                  className="luxury-command-item text-lg"
                 >
                   {item.name}
                   <CommandShortcut>منتج</CommandShortcut>
@@ -625,7 +1013,7 @@ function App() {
                     setIsSearchOpen(false)
                     window.location.hash = item.link
                   }}
-                  className="luxury-command-item"
+                  className="luxury-command-item text-lg"
                 >
                   {item.name}
                   <CommandShortcut>فئة</CommandShortcut>
@@ -670,313 +1058,411 @@ function App() {
               key={index}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide ? 'bg-accent' : 'bg-white/50'
-              }`}
+              } touch-friendly`}
               onClick={() => setCurrentSlide(index)}
             />
           ))}
         </div>
       </section>
 
-      <section id="categories" className="py-24 bg-gradient-to-b from-background to-secondary/10 luxury-hero relative overflow-hidden">
-        {/* خلفية زخرفية ديناميكية */}
-        <div className="absolute inset-0 bg-[url('/luxury-pattern.png')] opacity-5 pointer-events-none"></div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Breadcrumb */}
-          <Breadcrumb className="mb-10 luxury-shadow luxury-border-gold rounded-md bg-background/80 backdrop-blur-sm fade-in">
-            <BreadcrumbList className="luxury-font-body text-sm md:text-base text-foreground/80">
+      <section id="categories" className="py-20 bg-secondary/20 luxury-hero">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumb className="mb-8 luxury-shadow fade-in">
+            <BreadcrumbList className="luxury-font-body text-base md:text-lg">
               <BreadcrumbItem>
-                <BreadcrumbLink href="#home" className="luxury-nav-link hover:text-accent">
+                <BreadcrumbLink href="#home" className="luxury-nav-link">
                   الرئيسية
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="text-accent mx-2" />
+              <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="luxury-font-body text-accent">
-                  الفئات الحصرية
+                <BreadcrumbPage className="luxury-font-body text-muted-foreground">
+                  الفئات
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
-          {/* Heading Section */}
-          <div className="text-center mb-20">
-            <h2 className="text-4xl sm:text-5xl lg:text-7xl font-bold luxury-font-heading luxury-text-gradient mb-6 slide-in-left">
-              اكتشف فئاتنا الفاخرة
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold luxury-font-heading luxury-text-gradient mb-4 slide-in-left">
+              تسوق حسب الفئة
             </h2>
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto luxury-font-body fade-in">
-              تجربة تسوق استثنائية مع مجموعاتنا الحصرية من الملابس والإكسسوارات المصممة للأناقة اللافتة
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto luxury-font-body fade-in">
+              اكتشف مجموعتنا المتنوعة من الملابس والإكسسوارات الفاخرة المصممة لتعكس أناقتك الفريدة
             </p>
           </div>
 
-          {/* Categories Grid */}
-          <div className="luxury-product-grid gap-6 md:gap-8">
+          <div className="luxury-product-grid">
             {categories.map((category, index) => (
               <Card
                 key={index}
-                className="luxury-product-card luxury-card luxury-shadow-hover group cursor-pointer overflow-hidden rounded-xl bg-card/95 backdrop-blur-sm border-none slide-in-right"
-                style={{ animationDelay: `${index * 0.2}s` }}
+                className="luxury-product-card luxury-card luxury-shadow-hover group cursor-pointer overflow-hidden"
               >
-                <div className="relative h-72 sm:h-80 md:h-96 overflow-hidden">
-                  {/* الصورة */}
+                <div className="relative h-64 md:h-80 overflow-hidden">
                   <img
                     src={category.image}
                     alt={category.name}
-                    className="luxury-product-image group-hover:scale-110 group-hover:brightness-90"
+                    className="luxury-product-image"
                   />
-                  {/* طبقة التغطية */}
-                  <div className="luxury-product-overlay bg-gradient-to-t from-black/60 to-transparent group-hover:bg-black/50">
-                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 smooth-transition">
-                      <button className="luxury-btn-gold luxury-shadow text-sm md:text-base px-6 py-3 rounded-full smooth-transition group-hover:scale-105">
-                        تسوق الآن
-                      </button>
-                      <p className="text-white text-sm luxury-font-body mt-2 opacity-80">
-                        مجموعة حصرية
-                      </p>
-                    </div>
+                  <div className="luxury-product-overlay">
+                    <button className="luxury-btn-gold smooth-transition touch-friendly">
+                      استكشف الآن
+                    </button>
                   </div>
-                  {/* نص الفئة */}
-                  <div className="absolute bottom-8 left-8 right-8 text-white luxury-font-heading">
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold drop-shadow-lg">
+                  <div className="absolute bottom-6 left-6 text-white luxury-font-heading">
+                    <h3 className="text-xl md:text-2xl font-bold drop-shadow-md">
                       {category.name}
                     </h3>
-                    <p className="text-sm md:text-base opacity-85 luxury-font-body">
-                      {category.count} قطعة متميزة
+                    <p className="text-sm md:text-base opacity-90 luxury-font-body">
+                      {category.count} منتج
                     </p>
                   </div>
                 </div>
               </Card>
             ))}
           </div>
-
-          {/* زر دعوة للعمل مركزي */}
-          <div className="text-center mt-16 fade-in">
-            <a
-              href="#shop"
-              className="luxury-btn-outline px-8 py-4 text-lg luxury-font-body rounded-full luxury-shadow-hover"
-            >
-              استكشف المجموعة الكاملة
-            </a>
-          </div>
         </div>
       </section>
 
-      <section id="products" className="py-20 bg-background">
+      <section id="products" className="py-20 bg-background/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb */}
-          <Breadcrumb className="mb-8 luxury-shadow luxury-border rounded-md bg-card/95">
-            <BreadcrumbList className="luxury-font-body text-base">
+          <Breadcrumb className="mb-6 luxury-shadow animate-fade-in">
+            <BreadcrumbList className="luxury-font-body">
               <BreadcrumbItem>
-                <BreadcrumbLink href="#home" className="luxury-nav-link hover:text-accent">
-                  الرئيسية
-                </BreadcrumbLink>
+                <BreadcrumbLink href="#home" className="luxury-nav-link">الرئيسية</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="text-muted-foreground mx-2" />
+              <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="luxury-font-body text-foreground">
-                  المنتجات
-                </BreadcrumbPage>
+                <BreadcrumbPage className="text-muted-foreground">المنتجات</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-
-          {/* Heading Section */}
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold luxury-font-heading mb-4 text-foreground">
-              منتجاتنا المميزة
+            <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading luxury-text-gradient mb-4 animate-slide-in-up">
+              المنتجات المميزة
             </h2>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto luxury-font-body">
-              تشكيلة مختارة بعناية من أجود القطع لتلبية احتياجاتك بأناقة
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto luxury-font-body animate-fade-in">
+              تشكيلة مختارة بعناية من أفضل القطع في مجموعتنا
             </p>
           </div>
-
-          {/* Filters */}
-          <div className="luxury-checkbox-container mb-12 justify-start md:justify-center">
-            <RadioGroup
-              defaultValue="all"
+          <div className="flex justify-between items-center mb-8">
+            <div className="luxury-checkbox-container flex space-x-4">
+              <RadioGroup
+                defaultValue="all"
+                onValueChange={(value) => {
+                  setFilters({
+                    new: value === 'new',
+                    sale: value === 'sale',
+                  })
+                  setCurrentPage(1)
+                }}
+                className="flex space-x-4 animate-fade-in-up"
+              >
+                <motion.div
+                  className="flex items-center space-x-2"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <RadioGroupItem value="all" id="all" className="luxury-checkbox" />
+                  <Label htmlFor="all" className="luxury-font-body">الكل</Label>
+                </motion.div>
+                <motion.div
+                  className="flex items-center space-x-2"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <RadioGroupItem value="new" id="new-radio" className="luxury-checkbox" />
+                  <Label htmlFor="new-radio" className="luxury-font-body">جديد</Label>
+                </motion.div>
+                <motion.div
+                  className="flex items-center space-x-2"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <RadioGroupItem value="sale" id="sale-radio" className="luxury-checkbox" />
+                  <Label htmlFor="sale-radio" className="luxury-font-body">تخفيض</Label>
+                </motion.div>
+              </RadioGroup>
+            </div>
+            <Select
+              value={sortOption}
               onValueChange={(value) => {
-                setFilters({
-                  new: value === 'new',
-                  sale: value === 'sale',
-                });
-                setCurrentPage(1);
+                setSortOption(value)
+                setCurrentPage(1)
               }}
-              className="flex flex-wrap gap-6"
             >
-              {[
-                { value: 'all', label: 'الكل' },
-                { value: 'new', label: 'جديد' },
-                { value: 'sale', label: 'تخفيض' },
-              ].map((option) => (
-                <div key={option.value} className="flex items-center space-x-2 luxury-checkbox">
-                  <RadioGroupItem
-                    value={option.value}
-                    id={option.value}
-                    className="border-border text-accent focus:ring-accent"
-                  />
-                  <Label
-                    htmlFor={option.value}
-                    className="luxury-font-body text-base cursor-pointer text-foreground hover:text-accent smooth-transition"
-                  >
-                    {option.label}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
+              <SelectTrigger className="w-[180px] luxury-input animate-fade-in-up">
+                <SelectValue placeholder="ترتيب حسب" />
+              </SelectTrigger>
+              <SelectContent className="luxury-menubar-content">
+                <SelectItem value="default" className="luxury-menubar-item">الافتراضي</SelectItem>
+                <SelectItem value="price-low" className="luxury-menubar-item">السعر: منخفض إلى مرتفع</SelectItem>
+                <SelectItem value="price-high" className="luxury-menubar-item">السعر: مرتفع إلى منخفض</SelectItem>
+                <SelectItem value="rating" className="luxury-menubar-item">التقييم</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-
-          {/* Products Grid */}
-          <div className="luxury-product-grid gap-8">
-            {currentProducts.length > 0 ? (
-              currentProducts.map((product) => (
-                <ContextMenu key={product.id}>
-                  <ContextMenuTrigger>
-                    <Card className="luxury-product-card luxury-card border-border rounded-lg overflow-hidden">
-                      <div className="relative h-64 sm:h-72 md:h-80">
-                        {/* الصورة */}
-                        <AspectRatio ratio={4 / 3}>
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="luxury-product-image"
-                          />
-                        </AspectRatio>
-                        {/* طبقة التغطية */}
-                        <div className="luxury-product-overlay bg-black/20 opacity-0 group-hover:opacity-100 smooth-transition">
-                          <Button className="luxury-btn-outline text-sm px-6 py-2 absolute inset-x-0 bottom-4 mx-auto rounded-full">
-                            عرض التفاصيل
-                          </Button>
-                        </div>
-                        {/* الشارات */}
-                        {product.isNew && (
-                          <Badge
-                            variant="secondary"
-                            className="absolute top-4 left-4 luxury-shadow bg-background text-foreground"
-                          >
-                            جديد
-                          </Badge>
-                        )}
-                        {product.isSale && (
-                          <Badge
-                            variant="destructive"
-                            className="absolute top-4 right-4 luxury-shadow bg-destructive text-destructive-foreground"
-                          >
-                            تخفيض {product.discount}%
-                          </Badge>
-                        )}
-                        {/* زر المفضلة */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-4 right-4 bg-background/80 hover:bg-background rounded-full"
-                          onClick={() => toggleFavorite(product.id)}
-                        >
-                          <Heart
-                            className={`h-5 w-5 smooth-transition ${
-                              favorites.includes(product.id)
-                                ? 'fill-current text-accent'
-                                : 'text-muted-foreground'
-                            }`}
-                          />
-                        </Button>
-                      </div>
-                      {/* محتوى البطاقة */}
-                      <CardContent className="p-6">
-                        <h3 className="text-lg md:text-xl font-semibold luxury-font-heading mb-2 text-foreground">
-                          {product.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-3 luxury-font-body line-clamp-2">
-                          {product.description}
-                        </p>
-                        <div className="flex items-center mb-3">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < Math.floor(product.rating)
-                                    ? 'text-accent fill-current'
-                                    : 'text-muted-foreground'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-sm text-muted-foreground mr-2">
-                            ({product.reviews})
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xl md:text-2xl font-bold text-foreground">
-                              {product.price}
-                            </span>
-                            {product.originalPrice && (
-                              <span className="text-sm text-muted-foreground line-through">
-                                {product.originalPrice}
-                              </span>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            className="luxury-btn-outline text-sm px-4 py-2 rounded-full"
-                          >
-                            أضف للسلة
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </ContextMenuTrigger>
-                  <ContextMenuContent className="luxury-context-menu">
-                    <ContextMenuItem
-                      className="luxury-context-menu-item"
-                      onSelect={() => toggleFavorite(product.id)}
-                    >
-                      {favorites.includes(product.id)
-                        ? 'إزالة من المفضلة'
-                        : 'إضافة إلى المفضلة'}
-                      <ContextMenuShortcut>
-                        <Heart className="h-4 w-4" />
-                      </ContextMenuShortcut>
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      className="luxury-context-menu-item"
-                      onSelect={() => alert(`تمت مشاركة ${product.name}`)}
-                    >
-                      مشاركة المنتج
-                      <ContextMenuShortcut>مشاركة</ContextMenuShortcut>
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem
-                      className="luxury-context-menu-item"
-                      onSelect={() => (window.location.hash = '#product-details')}
-                    >
-                      عرض التفاصيل
-                      <ContextMenuShortcut>عرض</ContextMenuShortcut>
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-              ))
-            ) : (
-              <div className="text-center text-muted-foreground py-12 luxury-font-body text-lg">
-                لا توجد منتجات تطابق الفلاتر المحددة. جرب تعديل اختياراتك.
+          <ScrollArea className="h-[600px] rounded-md border p-4 luxury-shadow luxury-carousel">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <motion.div
+                  className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full mx-auto"
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                />
+                <p className="mt-4 text-muted-foreground">جارٍ تحميل المنتجات...</p>
               </div>
+            ) : (
+              <>
+                {currentProducts.length > 0 ? (
+                  <motion.div
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {currentProducts.map((product) => (
+                      <ContextMenu key={product.id}>
+                        <ContextMenuTrigger>
+                          <Card className="luxury-product-card luxury-card overflow-hidden luxury-shadow-hover group">
+                            <div className="relative">
+                              <Popover defaultOpen={false}>
+                                <PopoverTrigger asChild>
+                                  <AspectRatio ratio={4 / 3}>
+                                    <motion.img
+                                      src={product.image}
+                                      alt={product.name}
+                                      className="luxury-product-image object-cover w-full h-full"
+                                      whileHover={{ scale: 1.05 }}
+                                      transition={{ duration: 0.3 }}
+                                    />
+                                  </AspectRatio>
+                                </PopoverTrigger>
+                                <PopoverContent className="luxury-hover-card">
+                                  <h3 className="text-lg font-semibold luxury-font-heading mb-2">
+                                    {product.name}
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground mb-3">
+                                    {product.description}
+                                  </p>
+                                  <div className="flex items-center mb-2">
+                                    <div className="flex items-center">
+                                      {[...Array(5)].map((_, i) => (
+                                        <Star
+                                          key={i}
+                                          className={`h-4 w-4 ${
+                                            i < Math.floor(product.rating)
+                                              ? 'text-accent fill-current'
+                                              : 'text-muted-foreground'
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                    <span className="text-sm text-muted-foreground mr-2">
+                                      ({product.reviews})
+                                    </span>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Select
+                                      onValueChange={(value) => setSelectedProduct({ ...product, size: value })}
+                                    >
+                                      <SelectTrigger className="luxury-input">
+                                        <SelectValue placeholder="اختر المقاس" />
+                                      </SelectTrigger>
+                                      <SelectContent className="luxury-menubar-content">
+                                        {product.sizes.map((size) => (
+                                          <SelectItem key={size} value={size} className="luxury-menubar-item">
+                                            {size}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Select
+                                      onValueChange={(value) => setSelectedProduct({ ...product, color: value })}
+                                    >
+                                      <SelectTrigger className="luxury-input">
+                                        <SelectValue placeholder="اختر اللون" />
+                                      </SelectTrigger>
+                                      <SelectContent className="luxury-menubar-content">
+                                        {product.colors.map((color) => (
+                                          <SelectItem key={color} value={color} className="luxury-menubar-item">
+                                            {color}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Button
+                                      className="luxury-btn-gold w-full touch-friendly"
+                                      onClick={() => {
+                                        addToCart(product, product.size || product.sizes[0], product.color || product.colors[0])
+                                        toast({
+                                          title: "تمت الإضافة بسرعة",
+                                          description: `${product.name} تمت إضافته إلى السلة.`,
+                                        })
+                                      }}
+                                    >
+                                      إضافة سريعة
+                                    </Button>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                              <motion.div
+                                className="luxury-product-overlay"
+                                initial={{ opacity: 0 }}
+                                whileHover={{ opacity: 1 }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                <Button 
+                                  className="luxury-btn-gold touch-friendly"
+                                  onClick={() => viewProductDetails(product)}
+                                >
+                                  عرض التفاصيل
+                                </Button>
+                              </motion.div>
+                              {product.isNew && (
+                                <Badge
+                                  variant="secondary"
+                                  className="absolute top-4 left-4 luxury-shadow animate-pulse"
+                                >
+                                  جديد
+                                </Badge>
+                              )}
+                              {product.isSale && (
+                                <Badge
+                                  variant="destructive"
+                                  className="absolute top-4 right-4 luxury-shadow animate-pulse"
+                                >
+                                  تخفيض
+                                </Badge>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute top-4 right-12 bg-white/80 hover:bg-white touch-friendly"
+                                onClick={() => toggleFavorite(product.id)}
+                              >
+                                <Heart
+                                  className={`h-4 w-4 ${
+                                    favorites.includes(product.id)
+                                      ? 'fill-current text-accent'
+                                      : 'text-muted-foreground'
+                                  }`}
+                                />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute top-4 right-4 bg-white/80 hover:bg-white touch-friendly"
+                                onClick={() => {
+                                  toast({
+                                    title: "تمت المشاركة",
+                                    description: `تمت مشاركة ${product.name} عبر البريد الإلكتروني.`,
+                                  })
+                                }}
+                              >
+                                <Mail className="h-4 w-4 text-accent" />
+                              </Button>
+                            </div>
+                            <CardContent className="p-6">
+                              <h3 className="text-lg font-semibold luxury-font-heading mb-2">
+                                {product.name}
+                              </h3>
+                              <div className="flex items-center mb-2">
+                                <div className="flex items-center">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`h-4 w-4 ${
+                                        i < Math.floor(product.rating)
+                                          ? 'text-accent fill-current'
+                                          : 'text-muted-foreground'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm text-muted-foreground mr-2">
+                                  ({product.reviews})
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-xl font-bold text-accent">
+                                    {product.price}
+                                  </span>
+                                  {product.originalPrice && (
+                                    <span className="text-sm text-muted-foreground line-through">
+                                      {product.originalPrice}
+                                    </span>
+                                  )}
+                                </div>
+                                <Button 
+                                  size="sm" 
+                                  className="luxury-btn touch-friendly"
+                                  onClick={() => addToCart(product, product.sizes[0], product.colors[0])}
+                                >
+                                  أضف للسلة
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </ContextMenuTrigger>
+                        <ContextMenuContent className="luxury-context-menu">
+                          <ContextMenuItem
+                            className="luxury-context-menu-item"
+                            onSelect={() => toggleFavorite(product.id)}
+                          >
+                            {favorites.includes(product.id)
+                              ? 'إزالة من المفضلة'
+                              : 'إضافة إلى المفضلة'}
+                            <ContextMenuShortcut>
+                              <Heart className="h-4 w-4" />
+                            </ContextMenuShortcut>
+                          </ContextMenuItem>
+                          <ContextMenuItem
+                            className="luxury-context-menu-item"
+                            onSelect={() => {
+                              toast({
+                                title: "تمت المشاركة",
+                                description: `تمت مشاركة ${product.name} عبر البريد الإلكتروني.`,
+                              })
+                            }}
+                          >
+                            مشاركة المنتج
+                            <ContextMenuShortcut>
+                              <Mail className="h-4 w-4" />
+                            </ContextMenuShortcut>
+                          </ContextMenuItem>
+                          <ContextMenuSeparator />
+                          <ContextMenuItem
+                            className="luxury-context-menu-item"
+                            onSelect={() => viewProductDetails(product)}
+                          >
+                            عرض التفاصيل
+                            <ContextMenuShortcut>عرض</ContextMenuShortcut>
+                          </ContextMenuItem>
+                        </ContextMenuContent>
+                      </ContextMenu>
+                    ))}
+                  </motion.div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8 animate-fade-in">
+                    لا توجد منتجات تطابق الفلاتر المحددة.
+                  </div>
+                )}
+              </>
             )}
-          </div>
-
-          {/* Pagination */}
+          </ScrollArea>
           {totalPages > 1 && (
-            <Pagination className="mt-12 luxury-shadow">
-              <PaginationContent className="flex-wrap justify-center gap-2">
+            <Pagination className="luxury-pagination mt-12 animate-fade-in-up">
+              <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
                     href="#products"
                     onClick={(e) => {
-                      e.preventDefault();
-                      if (currentPage > 1) setCurrentPage(currentPage - 1);
+                      e.preventDefault()
+                      if (currentPage > 1) setCurrentPage(currentPage - 1)
                     }}
-                    className={`luxury-btn-outline px-4 py-2 rounded-md smooth-transition ${
-                      currentPage === 1 ? 'pointer-events-none opacity-50' : ''
-                    }`}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'luxury-btn touch-friendly'}
                   />
                 </PaginationItem>
                 {getPageNumbers().map((page) => (
@@ -985,12 +1471,10 @@ function App() {
                       href="#products"
                       isActive={currentPage === page}
                       onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(page);
+                        e.preventDefault()
+                        setCurrentPage(page)
                       }}
-                      className={`luxury-btn-outline px-4 py-2 rounded-md smooth-transition ${
-                        currentPage === page ? 'bg-primary text-primary-foreground' : ''
-                      }`}
+                      className="luxury-btn touch-friendly"
                     >
                       {page}
                     </PaginationLink>
@@ -998,101 +1482,193 @@ function App() {
                 ))}
                 {totalPages > 5 && currentPage < totalPages - 2 && (
                   <PaginationItem>
-                    <PaginationEllipsis className="text-muted-foreground" />
+                    <PaginationEllipsis />
                   </PaginationItem>
                 )}
                 <PaginationItem>
                   <PaginationNext
                     href="#products"
                     onClick={(e) => {
-                      e.preventDefault();
-                      if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                      e.preventDefault()
+                      if (currentPage < totalPages) setCurrentPage(currentPage + 1)
                     }}
-                    className={`luxury-btn-outline px-4 py-2 rounded-md smooth-transition ${
-                      currentPage === totalPages ? 'pointer-events-none opacity-50' : ''
-                    }`}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'luxury-btn touch-friendly'}
                   />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
           )}
-
-          {/* زر دعوة للعمل المركزي */}
           <div className="text-center mt-12">
-            <Button
-              className="luxury-btn-outline text-base px-8 py-4 rounded-md smooth-transition"
+            <Button 
+              className="luxury-btn-outline text-lg px-12 py-6 touch-friendly animate-slide-in-up"
+              onClick={viewAllProducts}
             >
               عرض جميع المنتجات
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </div>
       </section>
 
-      <section id="about" className="py-20 bg-secondary/30">
+      <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
+        <DialogContent className="luxury-card">
+          <DialogHeader>
+            <DialogTitle className="luxury-font-heading text-2xl">
+              {selectedProduct?.name}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedProduct?.description}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedProduct && (
+            <div className="space-y-4">
+              <AspectRatio ratio={4 / 3}>
+                <img
+                  src={selectedProduct.image}
+                  alt={selectedProduct.name}
+                  className="object-cover w-full h-full rounded-md"
+                />
+              </AspectRatio>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xl font-bold text-accent">
+                    {selectedProduct.price}
+                  </span>
+                  {selectedProduct.originalPrice && (
+                    <span className="text-sm text-muted-foreground line-through">
+                      {selectedProduct.originalPrice}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${
+                        i < Math.floor(selectedProduct.rating)
+                          ? 'text-accent fill-current'
+                          : 'text-muted-foreground'
+                      }`}
+                    />
+                  ))}
+                  <span className="text-sm text-muted-foreground mr-2">
+                    ({selectedProduct.reviews})
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <Select
+                  onValueChange={(value) => setSelectedProduct({ ...selectedProduct, size: value })}
+                >
+                  <SelectTrigger className="luxury-input">
+                    <SelectValue placeholder="اختر المقاس" />
+                  </SelectTrigger>
+                  <SelectContent className="luxury-menubar-content">
+                    {selectedProduct.sizes.map((size) => (
+                      <SelectItem key={size} value={size} className="luxury-menubar-item">
+                        {size}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  onValueChange={(value) => setSelectedProduct({ ...selectedProduct, color: value })}
+                >
+                  <SelectTrigger className="luxury-input">
+                    <SelectValue placeholder="اختر اللون" />
+                  </SelectTrigger>
+                  <SelectContent className="luxury-menubar-content">
+                    {selectedProduct.colors.map((color) => (
+                      <SelectItem key={color} value={color} className="luxury-menubar-item">
+                        {color}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  className="luxury-btn w-full touch-friendly"
+                  onClick={() => {
+                    addToCart(selectedProduct, selectedProduct.size || selectedProduct.sizes[0], selectedProduct.color || selectedProduct.colors[0])
+                    setIsProductDialogOpen(false)
+                  }}
+                >
+                  أضف للسلة
+                </Button>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline" className="luxury-btn-outline touch-friendly">إغلاق</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <section id="about" className="py-24 bg-gradient-to-b from-secondary/20 to-secondary/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Breadcrumb className="mb-6 luxury-shadow">
-            <BreadcrumbList className="luxury-font-body">
+          <Breadcrumb className="mb-8 luxury-shadow animate-fade-in">
+            <BreadcrumbList className="luxury-font-body text-lg">
               <BreadcrumbItem>
-                <BreadcrumbLink href="#home">الرئيسية</BreadcrumbLink>
+                <BreadcrumbLink href="#home" className="hover:text-accent transition-colors">الرئيسية</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>من نحن</BreadcrumbPage>
+                <BreadcrumbPage className="text-muted-foreground">من نحن</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold luxury-font-heading luxury-text-gradient animate-slide-in-up">
                 قصة العلامة التجارية
               </h2>
-              <p className="text-lg text-muted-foreground mb-6">
-                نحن في LUXE FASHION نؤمن بأن الموضة هي تعبير عن الشخصية والذوق الرفيع. 
-                منذ تأسيسنا، نسعى لتقديم أفضل التصاميم العالمية مع لمسة عربية أصيلة.
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                في LUXE FASHION، نؤمن بأن الموضة تعبر عن الشخصية والذوق الرفيع. منذ تأسيسنا، نسعى لتقديم تصاميم عالمية بلمسة عربية أصيلة.
               </p>
-              <p className="text-lg text-muted-foreground mb-8">
-                فريقنا المتخصص من المصممين والخبراء يعمل بلا كلل لانتقاء أفضل القطع 
-                وأحدث صيحات الموضة لنقدمها لك بجودة استثنائية وأسعار منافسة.
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                فريقنا من المصممين والخبراء يعمل بجد لاختيار أفضل القطع وأحدث صيحات الموضة، مقدمًا جودة استثنائية بأسعار تنافسية.
               </p>
-              <div className="grid grid-cols-3 gap-8 mb-8">
-                <div className="text-center">
-                  <div className="text-3xl font-bold luxury-text-gradient">500+</div>
-                  <div className="text-sm text-muted-foreground">منتج متاح</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold luxury-text-gradient">10K+</div>
-                  <div className="text-sm text-muted-foreground">عميل راضي</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold luxury-text-gradient">5</div>
-                  <div className="text-sm text-muted-foreground">سنوات خبرة</div>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+                {[
+                  { value: "500+", label: "منتج متاح", icon: ShoppingBag },
+                  { value: "10K+", label: "عميل راضي", icon: Heart },
+                  { value: "5", label: "سنوات خبرة", icon: Star },
+                ].map((stat, index) => (
+                  <Card key={index} className="luxury-card bg-background/80 backdrop-blur-sm border-accent/20 hover:shadow-xl transition-shadow duration-300 animate-fade-in-up" style={{ animationDelay: `${index * 0.2}s` }}>
+                    <CardContent className="p-6 text-center">
+                      <stat.icon className="h-8 w-8 mx-auto mb-4 text-accent" />
+                      <div className="text-3xl font-bold luxury-text-gradient">{stat.value}</div>
+                      <div className="text-sm text-muted-foreground mt-2">{stat.label}</div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <h3 className="text-2xl font-bold luxury-font-heading mb-6">
+              <h3 className="text-2xl md:text-3xl font-bold luxury-font-heading luxury-text-gradient mb-6">
                 قيمنا
               </h3>
               {values.map((value, index) => (
-                <Collapsible key={index} className="luxury-collapsible">
-                  <CollapsibleTrigger className="luxury-collapsible-trigger">
+                <Collapsible key={index} className="luxury-collapsible bg-background/50 border border-accent/10 rounded-lg mb-4 transition-all duration-300 hover:bg-background/80">
+                  <CollapsibleTrigger className="luxury-collapsible-trigger flex justify-between items-center p-4 text-lg font-semibold luxury-font-heading hover:text-accent transition-colors">
                     {value.title}
-                    <span>{value.isOpen ? '−' : '+'}</span>
+                    <span className="text-accent text-xl">{value.isOpen ? '−' : '+'}</span>
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="luxury-collapsible-content">
+                  <CollapsibleContent className="luxury-collapsible-content p-4 text-muted-foreground text-base">
                     {value.description}
                   </CollapsibleContent>
                 </Collapsible>
               ))}
-              <p className="text-sm text-muted-foreground italic mt-8">
+              <p className="text-sm text-muted-foreground italic mt-8 animate-fade-in">
                 تم تطوير هذا الموقع بواسطة فريق Ababil المتخصص في التطوير والتصميم
               </p>
             </div>
-            <div className="relative">
+            <div className="relative group">
               <img
                 src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
                 alt="About Us"
-                className="w-full h-96 object-cover rounded-lg luxury-shadow"
+                className="w-full h-[32rem] object-cover rounded-xl luxury-shadow group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-xl group-hover:from-black/50"></div>
             </div>
           </div>
         </div>
@@ -1146,13 +1722,13 @@ function App() {
                 نقدم لك أفضل التشكيلات من أرقى العلامات التجارية.
               </p>
               <div className="flex space-x-4">
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent">
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent touch-friendly">
                   <Instagram className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent">
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent touch-friendly">
                   <Facebook className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent">
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent touch-friendly">
                   <Twitter className="h-5 w-5" />
                 </Button>
               </div>
@@ -1202,7 +1778,7 @@ function App() {
                 © 2024 LUXE FASHION. جميع الحقوق محفوظة.
               </p>
               <p className="text-primary-foreground/60 text-sm mt-4 md:mt-0">
-                تم التطوير بواسطة فريق Ababil
+                Developed by Ababil Team
               </p>
             </div>
           </div>
