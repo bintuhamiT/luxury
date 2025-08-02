@@ -18,7 +18,7 @@ export function ToastProvider({ children }) {
   const dismissToast = (id) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id))
   }
-
+  
   return (
     <ToastContext.Provider value={{ toast, dismissToast }}>
       {children}
