@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card.jsx';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb.jsx';
@@ -7,11 +7,9 @@ import { ScrollArea } from '@/components/ui/scroll-area.jsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx';
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group';
 import { Label } from '@/components/ui/label.jsx';
-import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuSeparator } from '@/components/ui/context-menu.jsx';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover.jsx';
 import { AspectRatio } from '@/components/ui/aspect-ratio.jsx';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from '@/components/ui/pagination.jsx';
-import { Star, Heart, Mail, ArrowRight } from 'lucide-react';
+import { Star, ShoppingCart, Eye, ArrowRight, Package } from 'lucide-react';
 import { Badge } from '@/components/ui/badge.jsx';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -26,14 +24,13 @@ function ProductsSection({
   productsPerPage,
   handleProductsPerPageChange,
   isLoading,
-  favorites,
-  toggleFavorite,
   addToCart,
   viewProductDetails,
   viewAllProducts,
   handlePageChange,
 }) {
   const { toast } = useToast();
+  const [selectedOptions, setSelectedOptions] = useState({});
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -96,9 +93,47 @@ function ProductsSection({
     return pageNumbers;
   };
 
+  const handleAddToCart = (product) => {
+    const productOptions = selectedOptions[product.id] || {};
+    const selectedSize = productOptions.size || (product.sizes && product.sizes[0]);
+    const selectedColor = productOptions.color || (product.colors && product.colors[0]);
+    
+    addToCart(product, selectedSize, selectedColor);
+    
+    toast({
+      title: 'تمت الإضافة بنجاح',
+      description: `${product.name} تمت إضافته إلى سلة التسوق`,
+      duration: 3000,
+    });
+  };
+
+  const handleQuickAddToCart = (product) => {
+    const defaultSize = product.sizes && product.sizes[0];
+    const defaultColor = product.colors && product.colors[0];
+    
+    addToCart(product, defaultSize, defaultColor);
+    
+    toast({
+      title: 'إضافة سريعة',
+      description: `${product.name} تمت إضافته بالخيارات الافتراضية`,
+      duration: 2000,
+    });
+  };
+
+  const updateProductOption = (productId, optionType, value) => {
+    setSelectedOptions(prev => ({
+      ...prev,
+      [productId]: {
+        ...prev[productId],
+        [optionType]: value
+      }
+    }));
+  };
+
   return (
     <section id="products" className="py-20 bg-background/95 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb Navigation */}
         <Breadcrumb className="mb-6 luxury-shadow animate-fade-in">
           <BreadcrumbList className="luxury-font-body">
             <BreadcrumbItem>
@@ -110,16 +145,30 @@ function ProductsSection({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+
+        {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold luxury-font-heading luxury-text-gradient mb-4 animate-slide-in-up">
+          <motion.h2 
+            className="text-4xl md:text-5xl font-bold luxury-font-heading luxury-text-gradient mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             المنتجات المميزة
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto luxury-font-body animate-fade-in">
+          </motion.h2>
+          <motion.p 
+            className="text-xl text-muted-foreground max-w-2xl mx-auto luxury-font-body"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             تشكيلة مختارة بعناية من أفضل القطع في مجموعتنا
-          </p>
+          </motion.p>
         </div>
-        <div className="flex justify-between items-center mb-8">
-          <div className="luxury-checkbox-container flex space-x-4">
+
+        {/* Filters and Sorting */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div className="luxury-checkbox-container">
             <RadioGroup
               defaultValue="all"
               onValueChange={(value) => {
@@ -129,7 +178,7 @@ function ProductsSection({
                 });
                 setCurrentPage(1);
               }}
-              className="flex space-x-4 animate-fade-in-up"
+              className="flex flex-wrap gap-4 animate-fade-in-up"
             >
               <motion.div
                 className="flex items-center space-x-2"
@@ -137,7 +186,7 @@ function ProductsSection({
                 transition={{ duration: 0.2 }}
               >
                 <RadioGroupItem value="all" id="all" className="luxury-checkbox" />
-                <Label htmlFor="all" className="luxury-font-body">الكل</Label>
+                <Label htmlFor="all" className="luxury-font-body cursor-pointer">الكل</Label>
               </motion.div>
               <motion.div
                 className="flex items-center space-x-2"
@@ -145,7 +194,7 @@ function ProductsSection({
                 transition={{ duration: 0.2 }}
               >
                 <RadioGroupItem value="new" id="new-radio" className="luxury-checkbox" />
-                <Label htmlFor="new-radio" className="luxury-font-body">جديد</Label>
+                <Label htmlFor="new-radio" className="luxury-font-body cursor-pointer">جديد</Label>
               </motion.div>
               <motion.div
                 className="flex items-center space-x-2"
@@ -153,10 +202,11 @@ function ProductsSection({
                 transition={{ duration: 0.2 }}
               >
                 <RadioGroupItem value="sale" id="sale-radio" className="luxury-checkbox" />
-                <Label htmlFor="sale-radio" className="luxury-font-body">تخفيض</Label>
+                <Label htmlFor="sale-radio" className="luxury-font-body cursor-pointer">تخفيض</Label>
               </motion.div>
             </RadioGroup>
           </div>
+          
           <Select
             value={sortOption}
             onValueChange={(value) => {
@@ -164,7 +214,7 @@ function ProductsSection({
               setCurrentPage(1);
             }}
           >
-            <SelectTrigger className="w-[180px] luxury-input animate-fade-in-up">
+            <SelectTrigger className="w-full sm:w-[200px] luxury-input animate-fade-in-up">
               <SelectValue placeholder="ترتيب حسب" />
             </SelectTrigger>
             <SelectContent className="luxury-menubar-content">
@@ -175,127 +225,78 @@ function ProductsSection({
             </SelectContent>
           </Select>
         </div>
-        <ScrollArea className="h-[600px] rounded-md border p-4 luxury-shadow luxury-carousel">
+
+        {/* Products Grid */}
+        <ScrollArea className="h-auto max-h-[800px] rounded-md border p-4 luxury-shadow luxury-carousel">
           {isLoading ? (
-            <div className="text-center py-8">
+            <div className="text-center py-16">
               <motion.div
-                className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full mx-auto"
+                className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full mx-auto mb-4"
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
               />
-              <p className="mt-4 text-muted-foreground">جارٍ تحميل المنتجات...</p>
+              <p className="text-muted-foreground luxury-font-body">جارٍ تحميل المنتجات...</p>
             </div>
           ) : (
             <>
               {currentProducts.length > 0 ? (
                 <motion.div
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  {currentProducts.map((product) => (
-                    <ContextMenu key={product.id}>
-                      <ContextMenuTrigger>
-                        <Card className="luxury-product-card luxury-card overflow-hidden luxury-shadow-hover group">
-                          <div className="relative">
-                            <Popover defaultOpen={false}>
-                              <PopoverTrigger asChild>
-                                <AspectRatio ratio={4 / 3}>
-                                  <motion.img
-                                    src={product.image}
-                                    alt={product.name}
-                                    className="luxury-product-image object-cover w-full h-full"
-                                    whileHover={{ scale: 1.05 }}
-                                    transition={{ duration: 0.3 }}
-                                  />
-                                </AspectRatio>
-                              </PopoverTrigger>
-                              <PopoverContent className="luxury-hover-card">
-                                <h3 className="text-lg font-semibold luxury-font-heading mb-2">
-                                  {product.name}
-                                </h3>
-                                <p className="text-sm text-muted-foreground mb-3">
-                                  {product.description}
-                                </p>
-                                <div className="flex items-center mb-2">
-                                  <div className="flex items-center">
-                                    {[...Array(5)].map((_, i) => (
-                                      <Star
-                                        key={i}
-                                        className={`h-4 w-4 ${
-                                          i < Math.floor(product.rating)
-                                            ? 'text-accent fill-current'
-                                            : 'text-muted-foreground'
-                                        }`}
-                                      />
-                                    ))}
-                                  </div>
-                                  <span className="text-sm text-muted-foreground mr-2">
-                                    ({product.reviews})
-                                  </span>
-                                </div>
-                                <div className="space-y-2">
-                                  <Select
-                                    onValueChange={(value) => setSelectedProduct({ ...product, size: value })}
-                                  >
-                                    <SelectTrigger className="luxury-input">
-                                      <SelectValue placeholder="اختر المقاس" />
-                                    </SelectTrigger>
-                                    <SelectContent className="luxury-menubar-content">
-                                      {product.sizes.map((size) => (
-                                        <SelectItem key={size} value={size} className="luxury-menubar-item">
-                                          {size}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <Select
-                                    onValueChange={(value) => setSelectedProduct({ ...product, color: value })}
-                                  >
-                                    <SelectTrigger className="luxury-input">
-                                      <SelectValue placeholder="اختر اللون" />
-                                    </SelectTrigger>
-                                    <SelectContent className="luxury-menubar-content">
-                                      {product.colors.map((color) => (
-                                        <SelectItem key={color} value={color} className="luxury-menubar-item">
-                                          {color}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <Button
-                                    className="luxury-btn-gold w-full touch-friendly"
-                                    onClick={() => {
-                                      addToCart(product, product.size || product.sizes[0], product.color || product.colors[0]);
-                                      toast({
-                                        title: 'تمت الإضافة بسرعة',
-                                        description: `${product.name} تمت إضافته إلى السلة.`,
-                                      });
-                                    }}
-                                  >
-                                    إضافة سريعة
-                                  </Button>
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                            <motion.div
-                              className="luxury-product-overlay"
-                              initial={{ opacity: 0 }}
-                              whileHover={{ opacity: 1 }}
+                  {currentProducts.map((product, index) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <Card className="luxury-product-card luxury-card overflow-hidden luxury-shadow-hover group">
+                        <div className="relative">
+                          <AspectRatio ratio={4 / 3}>
+                            <motion.img
+                              src={product.image}
+                              alt={product.name}
+                              className="luxury-product-image object-cover w-full h-full"
+                              whileHover={{ scale: 1.05 }}
                               transition={{ duration: 0.3 }}
-                            >
+                            />
+                          </AspectRatio>
+                          
+                          {/* Product Overlay */}
+                          <motion.div
+                            className="luxury-product-overlay"
+                            initial={{ opacity: 0 }}
+                            whileHover={{ opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <div className="flex flex-col gap-3">
                               <Button 
                                 className="luxury-btn-gold touch-friendly"
                                 onClick={() => viewProductDetails(product)}
                               >
+                                <Eye className="w-4 h-4 ml-2" />
                                 عرض التفاصيل
                               </Button>
-                            </motion.div>
+                              <Button 
+                                variant="outline"
+                                className="luxury-btn-outline touch-friendly bg-white/90 hover:bg-white"
+                                onClick={() => handleQuickAddToCart(product)}
+                              >
+                                <ShoppingCart className="w-4 h-4 ml-2" />
+                                إضافة سريعة
+                              </Button>
+                            </div>
+                          </motion.div>
+
+                          {/* Product Badges */}
+                          <div className="absolute top-4 left-4 flex flex-col gap-2">
                             {product.isNew && (
                               <Badge
                                 variant="secondary"
-                                className="absolute top-4 left-4 luxury-shadow animate-pulse"
+                                className="luxury-shadow animate-pulse bg-green-500 text-white"
                               >
                                 جديد
                               </Badge>
@@ -303,186 +304,213 @@ function ProductsSection({
                             {product.isSale && (
                               <Badge
                                 variant="destructive"
-                                className="absolute top-4 right-4 luxury-shadow animate-pulse"
+                                className="luxury-shadow animate-pulse"
                               >
                                 تخفيض
                               </Badge>
                             )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="absolute top-4 right-12 bg-white/80 hover:bg-white touch-friendly"
-                              onClick={() => toggleFavorite(product.id)}
+                          </div>
+                        </div>
+
+                        <CardContent className="p-6">
+                          <h3 className="text-lg font-semibold luxury-font-heading mb-2 line-clamp-2">
+                            {product.name}
+                          </h3>
+                          
+                          {/* Rating */}
+                          <div className="flex items-center mb-3">
+                            <div className="flex items-center">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${
+                                    i < Math.floor(product.rating)
+                                      ? 'text-yellow-400 fill-current'
+                                      : 'text-muted-foreground'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-muted-foreground mr-2">
+                              ({product.reviews || 0})
+                            </span>
+                          </div>
+
+                          {/* Product Options */}
+                          {(product.sizes || product.colors) && (
+                            <div className="space-y-3 mb-4">
+                              {product.sizes && (
+                                <Select
+                                  value={selectedOptions[product.id]?.size || ''}
+                                  onValueChange={(value) => updateProductOption(product.id, 'size', value)}
+                                >
+                                  <SelectTrigger className="luxury-input text-sm">
+                                    <SelectValue placeholder="اختر المقاس" />
+                                  </SelectTrigger>
+                                  <SelectContent className="luxury-menubar-content">
+                                    {product.sizes.map((size) => (
+                                      <SelectItem key={size} value={size} className="luxury-menubar-item">
+                                        {size}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                              
+                              {product.colors && (
+                                <Select
+                                  value={selectedOptions[product.id]?.color || ''}
+                                  onValueChange={(value) => updateProductOption(product.id, 'color', value)}
+                                >
+                                  <SelectTrigger className="luxury-input text-sm">
+                                    <SelectValue placeholder="اختر اللون" />
+                                  </SelectTrigger>
+                                  <SelectContent className="luxury-menubar-content">
+                                    {product.colors.map((color) => (
+                                      <SelectItem key={color} value={color} className="luxury-menubar-item">
+                                        {color}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Price and Add to Cart */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xl font-bold text-accent">
+                                {product.price}
+                              </span>
+                              {product.originalPrice && (
+                                <span className="text-sm text-muted-foreground line-through">
+                                  {product.originalPrice}
+                                </span>
+                              )}
+                            </div>
+                            <Button 
+                              size="sm" 
+                              className="luxury-btn touch-friendly"
+                              onClick={() => handleAddToCart(product)}
                             >
-                              <Heart
-                                className={`h-4 w-4 ${
-                                  favorites.includes(product.id)
-                                    ? 'fill-current text-accent'
-                                    : 'text-muted-foreground'
-                                }`}
-                              />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="absolute top-4 right-4 bg-white/80 hover:bg-white touch-friendly"
-                              onClick={() => {
-                                toast({
-                                  title: 'تمت المشاركة',
-                                  description: `تمت مشاركة ${product.name} عبر البريد الإلكتروني.`,
-                                });
-                              }}
-                            >
-                              <Mail className="h-4 w-4 text-accent" />
+                              <ShoppingCart className="w-4 h-4 ml-2" />
+                              أضف للسلة
                             </Button>
                           </div>
-                          <CardContent className="p-6">
-                            <h3 className="text-lg font-semibold luxury-font-heading mb-2">
-                              {product.name}
-                            </h3>
-                            <div className="flex items-center mb-2">
-                              <div className="flex items-center">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-4 w-4 ${
-                                      i < Math.floor(product.rating)
-                                        ? 'text-accent fill-current'
-                                        : 'text-muted-foreground'
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-sm text-muted-foreground mr-2">
-                                ({product.reviews})
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <span className="text-xl font-bold text-accent">
-                                  {product.price}
-                                </span>
-                                {product.originalPrice && (
-                                  <span className="text-sm text-muted-foreground line-through">
-                                    {product.originalPrice}
-                                  </span>
-                                )}
-                              </div>
-                              <Button 
-                                size="sm" 
-                                className="luxury-btn touch-friendly"
-                                onClick={() => addToCart(product, product.sizes[0], product.colors[0])}
-                              >
-                                أضف للسلة
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </ContextMenuTrigger>
-                      <ContextMenuContent className="luxury-context-menu">
-                        <ContextMenuItem
-                          className="luxury-context-menu-item"
-                          onSelect={() => toggleFavorite(product.id)}
-                        >
-                          {favorites.includes(product.id)
-                            ? 'إزالة من المفضلة'
-                            : 'إضافة إلى المفضلة'}
-                          <ContextMenuShortcut>
-                            <Heart className="h-4 w-4" />
-                          </ContextMenuShortcut>
-                        </ContextMenuItem>
-                        <ContextMenuItem
-                          className="luxury-context-menu-item"
-                          onSelect={() => {
-                            toast({
-                              title: 'تمت المشاركة',
-                              description: `تمت مشاركة ${product.name} عبر البريد الإلكتروني.`,
-                            });
-                          }}
-                        >
-                          مشاركة المنتج
-                          <ContextMenuShortcut>
-                            <Mail className="h-4 w-4" />
-                          </ContextMenuShortcut>
-                        </ContextMenuItem>
-                        <ContextMenuSeparator />
-                        <ContextMenuItem
-                          className="luxury-context-menu-item"
-                          onSelect={() => viewProductDetails(product)}
-                        >
-                          عرض التفاصيل
-                          <ContextMenuShortcut>عرض</ContextMenuShortcut>
-                        </ContextMenuItem>
-                      </ContextMenuContent>
-                    </ContextMenu>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
                   ))}
                 </motion.div>
               ) : (
-                <div className="text-center text-muted-foreground py-8 animate-fade-in">
-                  لا توجد منتجات تطابق الفلاتر المحددة.
-                </div>
+                <motion.div 
+                  className="text-center text-muted-foreground py-16"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
+                  <p className="text-lg luxury-font-body">لا توجد منتجات تطابق الفلاتر المحددة</p>
+                  <Button 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => {
+                      setFilters({ new: false, sale: false });
+                      setSortOption('default');
+                    }}
+                  >
+                    إعادة تعيين الفلاتر
+                  </Button>
+                </motion.div>
               )}
             </>
           )}
         </ScrollArea>
+
+        {/* Pagination */}
         {totalPages > 1 && (
-          <Pagination className="luxury-pagination mt-12 animate-fade-in-up">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#products"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage > 1) setCurrentPage(currentPage - 1);
-                  }}
-                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'luxury-btn touch-friendly'}
-                />
-              </PaginationItem>
-              {getPageNumbers().map((page) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <Pagination className="luxury-pagination mt-12">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
                     href="#products"
-                    isActive={currentPage === page}
                     onClick={(e) => {
                       e.preventDefault();
-                      setCurrentPage(page);
+                      if (currentPage > 1) {
+                        setCurrentPage(currentPage - 1);
+                        handlePageChange && handlePageChange(currentPage - 1);
+                      }
                     }}
-                    className="luxury-btn touch-friendly"
-                  >
-                    {page}
-                  </PaginationLink>
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'luxury-btn touch-friendly'}
+                  />
                 </PaginationItem>
-              ))}
-              {totalPages > 5 && currentPage < totalPages - 2 && (
+                
+                {getPageNumbers().map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#products"
+                      isActive={currentPage === page}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(page);
+                        handlePageChange && handlePageChange(page);
+                      }}
+                      className="luxury-btn touch-friendly"
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                
+                {totalPages > 5 && currentPage < totalPages - 2 && (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )}
+                
                 <PaginationItem>
-                  <PaginationEllipsis />
+                  <PaginationNext
+                    href="#products"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < totalPages) {
+                        setCurrentPage(currentPage + 1);
+                        handlePageChange && handlePageChange(currentPage + 1);
+                      }
+                    }}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'luxury-btn touch-friendly'}
+                  />
                 </PaginationItem>
-              )}
-              <PaginationItem>
-                <PaginationNext
-                  href="#products"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                  }}
-                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'luxury-btn touch-friendly'}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+              </PaginationContent>
+            </Pagination>
+          </motion.div>
         )}
-        <div className="text-center mt-12">
+
+        {/* View All Products Button */}
+        <motion.div 
+          className="text-center mt-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
           <Button 
-            className="luxury-btn-outline text-lg px-12 py-6 touch-friendly animate-slide-in-up"
+            className="luxury-btn-outline text-lg px-12 py-6 touch-friendly"
             onClick={viewAllProducts}
           >
             عرض جميع المنتجات
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
 
 export default ProductsSection;
+
